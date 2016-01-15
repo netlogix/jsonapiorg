@@ -55,12 +55,12 @@ abstract class ResourceInformation {
 	protected $priority = 0;
 
 	/**
-	 * @var
+	 * @var string
 	 */
-	protected $resourceClassName = '';
+	protected $resourceClassName = \Netlogix\JsonApiOrg\Domain\Dto\AbstractResource::class;
 
 	/**
-	 * @var
+	 * @var string
 	 */
 	protected $payloadClassName = '';
 
