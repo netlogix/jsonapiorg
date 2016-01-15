@@ -1,0 +1,47 @@
+#                                                                        #
+# Object Configuration for the Flow Framework                            #
+#                                                                        #
+# This file contains additions to the base configuration for the         #
+# Flow Framework when it runs in Testing context.                        #
+#                                                                        #
+
+
+#                                                                        #
+# Currently an adapted CurlEngine is used for sub requests. There are    #
+# chances for this not to be the very best idea, but as a prototype it's #
+# just easily executed.                                                  #
+#                                                                        #
+
+Netlogix\JsonApiOrg\Resource\Resolver\ResourceResolverInterface:
+  className: 'Netlogix\JsonApiOrg\Resource\Resolver\ResourceResolverByMapping'
+
+Netlogix\JsonApiOrg\Resource\Resolver\ResourceResolverBySubrequest:
+  properties:
+    requestEngine:
+      object: TYPO3\Flow\Http\Client\CurlEngine
+
+
+#                                                                        #
+# I'm not completely sure for this to be the very best way to configure  #
+# mapping, but there are situations wher a single PHP class needs to be  #
+# mapped to different JS objects.                                        #
+#                                                                        #
+
+# Netlogix\JsonApiOrg\Resource\Information\ExposableTypeMap:
+#  properties:
+#
+#    oneToOneTypeToClassMap:
+#      value:
+#        'TYPO3\Flow\Security\Account': 'account'
+#
+#    classIdentifierToTypeNameMap:
+#      value:
+#        'TYPO3\TYPO3CR\Domain\Model\Node::unstructured': 'unstructured'
+#        'TYPO3\TYPO3CR\Domain\Model\Node::TYPO3.Neos:Content': 'content-node'
+#        'TYPO3\TYPO3CR\Domain\Model\Node::TYPO3.Neos:ContentCollection': 'collection-node'
+#
+#    typeNameToClassIdentifierMap:
+#      value:
+#        'unstructured': 'TYPO3\TYPO3CR\Domain\Model\Node'
+#        'content-node': 'TYPO3\TYPO3CR\Domain\Model\Node'
+#        'collection-node': 'TYPO3\TYPO3CR\Domain\Model\Node'
