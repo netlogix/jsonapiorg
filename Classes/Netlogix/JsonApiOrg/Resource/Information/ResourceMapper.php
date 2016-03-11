@@ -125,7 +125,7 @@ class ResourceMapper {
 		if ($dataIdentifier === NULL) {
 			return NULL;
 		}
-		$resourceConverter = new \Netlogix\JsonApiOrg\Property\TypeConverter\ResourceConverter();
+		$resourceConverter = new \Netlogix\JsonApiOrg\Property\TypeConverter\SchemaResource\ResourceConverter();
 		/** @var \Netlogix\JsonApiOrg\Schema\Resource $resource */
 		$resource = $resourceConverter->convertFrom($dataIdentifier, \Netlogix\JsonApiOrg\Schema\Resource::class);
 		return $resource->getPayload();

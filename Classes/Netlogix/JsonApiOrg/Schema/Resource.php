@@ -52,7 +52,7 @@ abstract class Resource extends AbstractSchemaElement {
 	 * @param $payload
 	 * @param \Netlogix\JsonApiOrg\Resource\Information\ResourceInformationInterface $resourceInformation
 	 */
-	public function __construct($payload, \Netlogix\JsonApiOrg\Resource\Information\ResourceInformationInterface $resourceInformation) {
+	public function __construct($payload, \Netlogix\JsonApiOrg\Resource\Information\ResourceInformationInterface $resourceInformation = NULL) {
 		$this->payload = $payload;
 		$this->resourceInformation = $resourceInformation;
 

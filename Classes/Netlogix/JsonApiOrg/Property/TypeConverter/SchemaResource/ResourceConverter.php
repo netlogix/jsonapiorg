@@ -1,5 +1,5 @@
 <?php
-namespace Netlogix\JsonApiOrg\Property\TypeConverter;
+namespace Netlogix\JsonApiOrg\Property\TypeConverter\SchemaResource;
 
 /*
  * This file is part of the Netlogix.JsonApiOrg package.
@@ -64,34 +64,23 @@ class ResourceConverter extends \TYPO3\Flow\Property\TypeConverter\AbstractTypeC
 	 */
 	public function convertFrom($source, $targetType, array $convertedChildProperties = array(), \TYPO3\Flow\Property\PropertyMappingConfigurationInterface $configuration = null) {
 
-		if (is_array($source)) {
-			$sourceArray = $source;
-		} elseif (is_string($source)) {
+		if (is_string($source)) {
 			$sourceArray = json_decode($source, TRUE);
+			$source = is_array($sourceArray) ? $sourceArray : ['id' => $source];
 		}
 
-		$payload = NULL;
-
-		if (is_array($sourceArray) && isset($sourceArray['id']) && isset($sourceArray['type'])) {
-			$payload = $this->propertyMapper->convert($sourceArray['id'], $this->exposableTypeMap->getClassName($sourceArray['type']));
-		}
-
-		if (is_null($payload) && is_array($sourceArray) && isset($sourceArray['type'])) {
-			$payload = $this->propertyMapper->convert(array(), $this->exposableTypeMap->getClassName($sourceArray['type']));
-		}
-
-		if (is_null($payload) && is_array($sourceArray) && isset($sourceArray['__identity'])) {
-			$source = $sourceArray['__identity'];
-		}
-
-		if (is_null($payload) && is_string($source)) {
-			/** @var \Netlogix\JsonApiOrg\Schema\ResourceInterface $dummyPayload */
+		if (!array_key_exists('type', $source)) {
 			$dummyPayload = $this->objectManager->get($targetType);
 			$typeIdentifier = $dummyPayload->getType();
-			$type = $this->exposableTypeMap->getType($typeIdentifier);
-			$className = $this->exposableTypeMap->getClassName($type);
-			$payload = $this->propertyMapper->convert($source, $className);
+			$source['type'] = $this->exposableTypeMap->getType($typeIdentifier);
 		}
+
+		$arguments = [];
+		if (array_key_exists('id', $source)) {
+			$arguments['__identity'] = $source['id'];
+		}
+
+		$payload = $this->propertyMapper->convert($arguments, $this->exposableTypeMap->getClassName($source['type']));
 
 		$resourceInformation = $this->resourceMapper->findResourceInformation($payload);
 		$resource = $resourceInformation->getResource($payload);
