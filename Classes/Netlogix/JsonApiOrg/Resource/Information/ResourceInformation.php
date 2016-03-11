@@ -111,7 +111,13 @@ abstract class ResourceInformation {
 	 * @return boolean TRUE if this DtoConverter can handle the $source, FALSE otherwise.
 	 */
 	public function canHandle($payload) {
-		return is_object($payload) && is_a($payload, $this->payloadClassName);
+		if (is_object($payload) && is_a($payload, $this->payloadClassName)) {
+			return true;
+		} elseif (is_string($payload) && is_subclass_of($payload, $this->payloadClassName)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
