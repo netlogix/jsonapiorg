@@ -10,6 +10,7 @@ namespace Netlogix\JsonApiOrg\Aspects\Property\TypeConverter;
  */
 
 use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Aop\JoinPointInterface;
 
 /**
  * Since the default MediaTypeConverter does not recognize the media type
@@ -19,20 +20,23 @@ use TYPO3\Flow\Annotations as Flow;
  * @Flow\Aspect
  * @Flow\Scope("singleton")
  */
-class TreatJsonApiOrgAsJsonMediaTypeAspect {
+class TreatJsonApiOrgAsJsonMediaTypeAspect
+{
 
-	/**
-	 * @Flow\Around("within(TYPO3\Flow\Property\TypeConverter\MediaTypeConverterInterface) && method(.*->convertMediaType())")
-	 * @param \TYPO3\Flow\Aop\JoinPointInterface $joinPoint The current joinpoint
-	 */
-	public function rewriteJsonApiOrgMediaTypeToJson(\TYPO3\Flow\Aop\JoinPointInterface $joinPoint) {
+    /**
+     * @Flow\Around("within(TYPO3\Flow\Property\TypeConverter\MediaTypeConverterInterface) && method(.*->convertMediaType())")
+     * @param JoinPointInterface $joinPoint The current joinpoint
+     * @return mixed
+     */
+    public function rewriteJsonApiOrgMediaTypeToJson(JoinPointInterface $joinPoint)
+    {
 
-		$mediaType = $joinPoint->getMethodArgument('mediaType');
-		if (strpos($mediaType, 'application/vnd.api+json') !== FALSE) {
-			$joinPoint->setMethodArgument('mediaType', 'application/json');
-		}
+        $mediaType = $joinPoint->getMethodArgument('mediaType');
+        if (strpos($mediaType, 'application/vnd.api+json') !== false) {
+            $joinPoint->setMethodArgument('mediaType', 'application/json');
+        }
 
-		return $joinPoint->getAdviceChain()->proceed($joinPoint);
-	}
+        return $joinPoint->getAdviceChain()->proceed($joinPoint);
+    }
 
 }

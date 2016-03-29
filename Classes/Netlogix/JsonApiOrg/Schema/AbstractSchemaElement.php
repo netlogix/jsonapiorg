@@ -16,29 +16,31 @@ use TYPO3\Flow\Annotations as Flow;
  * the jsonapi.org definition but just a convenience to access
  * the resource mapper.
  */
-abstract class AbstractSchemaElement implements \JsonSerializable {
+abstract class AbstractSchemaElement implements \JsonSerializable
+{
 
-	/**
-	 * @var \Netlogix\JsonApiOrg\Resource\Information\ResourceMapper
-	 * @Flow\Inject
-	 */
-	protected $resourceMapper;
+    /**
+     * @var \Netlogix\JsonApiOrg\Resource\Information\ResourceMapper
+     * @Flow\Inject
+     */
+    protected $resourceMapper;
 
-	/**
-	 * Every jsonapi.org schema element must be able to jsonSerialize
-	 * itself. So the whole schema definition can be seen as its very
-	 * own JsonView implementation.
-	 *
-	 * @return array
-	 */
-	abstract function jsonSerialize();
+    /**
+     * Every jsonapi.org schema element must be able to jsonSerialize
+     * itself. So the whole schema definition can be seen as its very
+     * own JsonView implementation.
+     *
+     * @return array
+     */
+    abstract function jsonSerialize();
 
-	/**
-	 * @param $payload
-	 * @return array
-	 */
-	protected function getDataIdentifierForPayload($payload) {
-		return $this->resourceMapper->getDataIdentifierForPayload($payload);
-	}
+    /**
+     * @param $payload
+     * @return array
+     */
+    protected function getDataIdentifierForPayload($payload)
+    {
+        return $this->resourceMapper->getDataIdentifierForPayload($payload);
+    }
 
 }

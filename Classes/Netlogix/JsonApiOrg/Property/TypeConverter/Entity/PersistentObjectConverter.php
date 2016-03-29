@@ -10,6 +10,8 @@ namespace Netlogix\JsonApiOrg\Property\TypeConverter\Entity;
  */
 
 use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Property\Exception\FormatNotSupportedException;
+use TYPO3\Flow\Property\PropertyMappingConfigurationInterface;
 
 /**
  */
@@ -45,13 +47,11 @@ class PersistentObjectConverter extends AbstractSchemaResourceBasedEntityConvert
         }
         try {
             $className = $this->exposableTypeMap->getClassName($source['type']);
-        } catch (\TYPO3\Flow\Property\Exception\FormatNotSupportedException $e) {
+        } catch (FormatNotSupportedException $e) {
             return false;
         }
-        if (
-            $className !== $targetType &&
-            !is_subclass_of($className, $targetType) &&
-            !is_subclass_of($targetType, $className)
+        if ($className !== $targetType && !is_subclass_of($className, $targetType) && !is_subclass_of($targetType,
+                $className)
         ) {
             return false;
         }
@@ -73,13 +73,17 @@ class PersistentObjectConverter extends AbstractSchemaResourceBasedEntityConvert
      * @param mixed $source
      * @param string $targetType
      * @param array $convertedChildProperties
-     * @param \TYPO3\Flow\Property\PropertyMappingConfigurationInterface $configuration
+     * @param PropertyMappingConfigurationInterface $configuration
      * @return mixed|\TYPO3\Flow\Error\Error the target type, or an error object if a user-error occurred
      * @throws \TYPO3\Flow\Property\Exception\TypeConverterException thrown in case a developer error occurred
      * @api
      */
-    public function convertFrom($source, $targetType, array $convertedChildProperties = array(), \TYPO3\Flow\Property\PropertyMappingConfigurationInterface $configuration = null)
-    {
+    public function convertFrom(
+        $source,
+        $targetType,
+        array $convertedChildProperties = array(),
+        PropertyMappingConfigurationInterface $configuration = null
+    ) {
         $arguments = [];
         if (array_key_exists('attributes', $source)) {
             $arguments = array_merge($arguments, $source['attributes']);
@@ -90,6 +94,7 @@ class PersistentObjectConverter extends AbstractSchemaResourceBasedEntityConvert
         if (array_key_exists('id', $source)) {
             $arguments['__identity'] = $source['id'];
         }
+
         return $this->propertyMapper->convert($arguments, $this->exposableTypeMap->getClassName($source['type']));
     }
 

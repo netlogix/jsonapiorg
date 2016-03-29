@@ -8,20 +8,21 @@ namespace Netlogix\JsonApiOrg\Schema;
  * information, please view the LICENSE file which was distributed with this
  * source code.
  */
+use Netlogix\JsonApiOrg\Schema;
 
 /**
  * @see http://jsonapi.org/format/#document-meta
  * @TODO: Put to some good use.
  */
-class Meta {
+class Meta
+{
 
-	/**
-	 * Meta constructor.
-	 *
-	 * @param Resource $resource
-	 */
-	public function __construct(\Netlogix\JsonApiOrg\Schema\Resource $resource) {
+    /**
+     * @param Schema\Resource $resource
+     */
+    public function __construct(Schema\Resource $resource)
+    {
 
-	}
+    }
 
 }

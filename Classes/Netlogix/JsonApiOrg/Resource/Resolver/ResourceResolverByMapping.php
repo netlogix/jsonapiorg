@@ -10,52 +10,60 @@ namespace Netlogix\JsonApiOrg\Resource\Resolver;
  */
 
 
+use Netlogix\JsonApiOrg\Resource\RequestStack;
+use Netlogix\JsonApiOrg\Schema\Resource;
 use TYPO3\Flow\Annotations as Flow;
 
 /**
  * The ResourceResolver takes an incoming requestData data structure
  * and returns the according resource object.
  */
-class ResourceResolverByMapping implements \Netlogix\JsonApiOrg\Resource\Resolver\ResourceResolverInterface {
+class ResourceResolverByMapping implements ResourceResolverInterface
+{
 
-	/**
-	 * @var array
-	 */
-	protected $automaticRequestHeader = array();
+    /**
+     * @var array
+     */
+    protected $automaticRequestHeader = array();
 
-	/**
-	 * @var \TYPO3\Flow\Http\Client\InternalRequestEngine
-	 * @Flow\Inject
-	 */
-	protected $requestEngine;
+    /**
+     * @var \TYPO3\Flow\Http\Client\InternalRequestEngine
+     * @Flow\Inject
+     */
+    protected $requestEngine;
 
-	/**
-	 * @var \TYPO3\Flow\Property\PropertyMapper
-	 * @Flow\Inject
-	 */
-	protected $propertyMapper;
+    /**
+     * @var \TYPO3\Flow\Property\PropertyMapper
+     * @Flow\Inject
+     */
+    protected $propertyMapper;
 
-	/**
-	 * @param array $requestData
-	 * @return array
-	 */
-	public function resourceRequest(array $requestData) {
+    /**
+     * @param array $requestData
+     * @return array
+     * @throws \Exception
+     * @throws \TYPO3\Flow\Property\Exception
+     * @throws \TYPO3\Flow\Security\Exception
+     */
+    public function resourceRequest(array $requestData)
+    {
 
-		/** @var \Netlogix\JsonApiOrg\Schema\Resource $resource */
-		$resource = $this->propertyMapper->convert($requestData[\Netlogix\JsonApiOrg\Resource\RequestStack::RESULT_DATA_IDENTIFIER], \Netlogix\JsonApiOrg\Schema\Resource::class);
+        /** @var Resource $resource */
+        $resource = $this->propertyMapper->convert($requestData[RequestStack::RESULT_DATA_IDENTIFIER], Resource::class);
 
-		if (!$resource) {
-			throw new \Exception('This request data can not be processed', 1452854971);
-		}
+        if (!$resource) {
+            throw new \Exception('This request data can not be processed', 1452854971);
+        }
 
-		return json_decode(json_encode($resource), TRUE);
-	}
+        return json_decode(json_encode($resource), true);
+    }
 
-	/**
-	 * @param array $supportedMediaTypes
-	 */
-	public function setSupportedMediaTypes(array $supportedMediaTypes) {
+    /**
+     * @param array $supportedMediaTypes
+     */
+    public function setSupportedMediaTypes(array $supportedMediaTypes)
+    {
 
-	}
+    }
 
 }

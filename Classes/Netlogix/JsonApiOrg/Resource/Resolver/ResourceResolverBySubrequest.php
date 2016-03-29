@@ -10,60 +10,70 @@ namespace Netlogix\JsonApiOrg\Resource\Resolver;
  */
 
 
+use Netlogix\JsonApiOrg\Resource\RequestStack;
 use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Http\Client\Browser;
 
 /**
  * The ResourceResolver takes an incoming requestData data structure
  * and returns the according resource object.
  */
-class ResourceResolverBySubrequest extends \TYPO3\Flow\Http\Client\Browser implements \Netlogix\JsonApiOrg\Resource\Resolver\ResourceResolverInterface {
+class ResourceResolverBySubrequest extends Browser implements ResourceResolverInterface
+{
 
-	const SUB_REQUEST_HEADER = 'X-Jsonapiorg-Subrequest';
+    const SUB_REQUEST_HEADER = 'X-Jsonapiorg-Subrequest';
 
-	/**
-	 * @var \TYPO3\Flow\Http\Client\RequestEngineInterface
-	 * @Flow\Inject
-	 * @TODO I'd love to have the InternalRequestEngine used here
-	 */
-	protected $requestEngine;
+    /**
+     * @var \TYPO3\Flow\Http\Client\RequestEngineInterface
+     * @Flow\Inject
+     * @TODO I'd love to have the InternalRequestEngine used here
+     */
+    protected $requestEngine;
 
-	/**
-	 * The supported media types information is used for both, providing
-	 * an Accept header to sub requests as well as validating responses.
-	 *
-	 * @var array
-	 */
-	protected $supportedMediaTypes = array(
-		'application/vnd.api+json'
-	);
+    /**
+     * The supported media types information is used for both, providing
+     * an Accept header to sub requests as well as validating responses.
+     *
+     * @var array
+     */
+    protected $supportedMediaTypes = array(
+        'application/vnd.api+json'
+    );
 
-	/**
-	 * @param array $requestData
-	 * @return array
-	 */
-	public function resourceRequest(array $requestData) {
-		$response = $this->request($requestData[\Netlogix\JsonApiOrg\Resource\RequestStack::RESULT_URI]);
+    /**
+     * @param array $requestData
+     * @return array
+     * @throws \Exception
+     * @throws \TYPO3\Flow\Http\Client\InfiniteRedirectionException
+     */
+    public function resourceRequest(array $requestData)
+    {
+        $response = $this->request($requestData[RequestStack::RESULT_URI]);
 
-		if ($response->getStatusCode() !== 200 || !in_array($response->getHeader('Content-Type'), $this->supportedMediaTypes)) {
-			throw new \Exception('This request data can not be processed', 1452854998);
-		}
+        if ($response->getStatusCode() !== 200 || !in_array($response->getHeader('Content-Type'),
+                $this->supportedMediaTypes)
+        ) {
+            throw new \Exception('This request data can not be processed', 1452854998);
+        }
 
-		return json_decode($response->getContent(), TRUE);
-	}
+        return json_decode($response->getContent(), true);
+    }
 
-	/**
-	 * @param array $supportedMediaTypes
-	 */
-	public function setSupportedMediaTypes(array $supportedMediaTypes) {
-		$this->supportedMediaTypes = $supportedMediaTypes;
-		$this->addAutomaticRequestHeader('Accept', current($supportedMediaTypes));
-	}
+    /**
+     * @param array $supportedMediaTypes
+     */
+    public function setSupportedMediaTypes(array $supportedMediaTypes)
+    {
+        $this->supportedMediaTypes = $supportedMediaTypes;
+        $this->addAutomaticRequestHeader('Accept', current($supportedMediaTypes));
+    }
 
-	/**
-	 *
-	 */
-	public function initializeObject() {
-		$this->addAutomaticRequestHeader(self::SUB_REQUEST_HEADER, 'true');
-	}
+    /**
+     *
+     */
+    public function initializeObject()
+    {
+        $this->addAutomaticRequestHeader(self::SUB_REQUEST_HEADER, 'true');
+    }
 
 }

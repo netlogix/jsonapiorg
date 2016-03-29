@@ -9,107 +9,115 @@ namespace Netlogix\JsonApiOrg\Domain\Dto;
  * source code.
  */
 
+use Netlogix\JsonApiOrg\Schema\Resource;
+use Netlogix\JsonApiOrg\Schema\ResourceInterface;
 use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Utility\TypeHandling;
 
 /**
- * A default/template implementation of a cusotm resource.
+ * A default/template implementation of a custom resource.
  *
  * @package Netlogix\JsonApiOrg\Domain\Model\Resource
  */
-abstract class AbstractResource extends \Netlogix\JsonApiOrg\Schema\Resource implements \Netlogix\JsonApiOrg\Schema\ResourceInterface {
+abstract class AbstractResource extends Resource implements ResourceInterface
+{
 
-	/**
-	 * @var \TYPO3\Flow\Persistence\PersistenceManagerInterface
-	 * @Flow\Inject
-	 */
-	protected $persistenceManager;
+    /**
+     * @var \TYPO3\Flow\Persistence\PersistenceManagerInterface
+     * @Flow\Inject
+     */
+    protected $persistenceManager;
 
-	/**
-	 * Those attribute names of the underlying $payload are exposed to the public
-	 * and thus available for reading and writing.
-	 *
-	 * This very array is just a collection of strings, each of them targeting
-	 * a property of the $payload.
-	 *
-	 * To expose actual $payload values, an additional Attributes object is used
-	 * just as proposed by the jsonapi.org schema.
-	 *
-	 * @var array<string>
-	 */
-	protected $attributesToBeApiExposed = array();
+    /**
+     * Those attribute names of the underlying $payload are exposed to the public
+     * and thus available for reading and writing.
+     *
+     * This very array is just a collection of strings, each of them targeting
+     * a property of the $payload.
+     *
+     * To expose actual $payload values, an additional Attributes object is used
+     * just as proposed by the jsonapi.org schema.
+     *
+     * @var array<string>
+     */
+    protected $attributesToBeApiExposed = array();
 
-	/**
-	 * Those relationship names of the underlying $payload are exposed to the public
-	 * and thus available for reading and writing.
-	 *
-	 * This very array maps a relationship name to a type of the relationship, where
-	 * the type is either "collection" or "single".
-	 *
-	 * To expose actual $payload values, an additional Relationships object is used
-	 * just as proposed by the jsonapi.org schema.
-	 *
-	 * Example:
-	 *   array(
-	 *     'parent' => 'single',
-	 *     'self' => 'single',
-	 *     'children' => 'collection'
-	 *   )
-	 *
-	 * @var array<string>
-	 */
-	protected $relationshipsToBeApiExposed = array();
+    /**
+     * Those relationship names of the underlying $payload are exposed to the public
+     * and thus available for reading and writing.
+     *
+     * This very array maps a relationship name to a type of the relationship, where
+     * the type is either "collection" or "single".
+     *
+     * To expose actual $payload values, an additional Relationships object is used
+     * just as proposed by the jsonapi.org schema.
+     *
+     * Example:
+     *   array(
+     *     'parent' => 'single',
+     *     'self' => 'single',
+     *     'children' => 'collection'
+     *   )
+     *
+     * @var array<string>
+     */
+    protected $relationshipsToBeApiExposed = array();
 
-	/**
-	 * Those attribute names of the underlying $payload are exposed to the public
-	 * and thus available for reading and writing.
-	 *
-	 * This very array is just a collection of strings, each of them targeting
-	 * a property of the $payload.
-	 *
-	 * To expose actual $payload values, an additional Attributes object is used
-	 * just as proposed by the jsonapi.org schema.
-	 *
-	 * @return array<string>
-	 */
-	public function getAttributesToBeApiExposed() {
-		return $this->attributesToBeApiExposed;
-	}
+    /**
+     * Those attribute names of the underlying $payload are exposed to the public
+     * and thus available for reading and writing.
+     *
+     * This very array is just a collection of strings, each of them targeting
+     * a property of the $payload.
+     *
+     * To expose actual $payload values, an additional Attributes object is used
+     * just as proposed by the jsonapi.org schema.
+     *
+     * @return array<string>
+     */
+    public function getAttributesToBeApiExposed()
+    {
+        return $this->attributesToBeApiExposed;
+    }
 
-	/**
-	 * Those relationship names of the underlying $payload are exposed to the public
-	 * and thus available for reading and writing.
-	 *
-	 * This very array maps a relationship name to a type of the relationship, where
-	 * the type is either "collection" or "single".
-	 *
-	 * To expose actual $payload values, an additional Relationships object is used
-	 * just as proposed by the jsonapi.org schema.
-	 *
-	 * Example:
-	 *   array(
-	 *     'parent' => 'single',
-	 *     'self' => 'single',
-	 *     'children' => 'collection'
-	 *   )
-	 *
-	 * @return array<string>
-	 */
-	public function getRelationshipsToBeApiExposed() {
-		return $this->relationshipsToBeApiExposed;
-	}
+    /**
+     * Those relationship names of the underlying $payload are exposed to the public
+     * and thus available for reading and writing.
+     *
+     * This very array maps a relationship name to a type of the relationship, where
+     * the type is either "collection" or "single".
+     *
+     * To expose actual $payload values, an additional Relationships object is used
+     * just as proposed by the jsonapi.org schema.
+     *
+     * Example:
+     *   array(
+     *     'parent' => 'single',
+     *     'self' => 'single',
+     *     'children' => 'collection'
+     *   )
+     *
+     * @return array<string>
+     */
+    public function getRelationshipsToBeApiExposed()
+    {
+        return $this->relationshipsToBeApiExposed;
+    }
 
-	/**
-	 * @return string
-	 */
-	public function getType() {
-		return \TYPO3\Flow\Utility\TypeHandling::getTypeForValue($this->getPayload());
-	}
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return TypeHandling::getTypeForValue($this->getPayload());
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getId() {
-		return $this->persistenceManager->getIdentifierByObject($this->getPayload());
-	}
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->persistenceManager->getIdentifierByObject($this->getPayload());
+    }
 
 }

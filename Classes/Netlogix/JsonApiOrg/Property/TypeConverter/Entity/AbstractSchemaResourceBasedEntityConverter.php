@@ -53,6 +53,7 @@ abstract class AbstractSchemaResourceBasedEntityConverter extends PersistentObje
         } elseif (count($source) === 2 && array_key_exists('type', $source) && array_key_exists('id', $source)) {
             return true;
         }
+
         return false;
     }
 
@@ -63,6 +64,7 @@ abstract class AbstractSchemaResourceBasedEntityConverter extends PersistentObje
     protected function convertIdentifierProperties($source)
     {
         $identifier = array_key_exists('id', $source) ? $source['id'] : [];
+
         return $this->propertyMapper->convert($identifier, $this->exposableTypeMap->getClassName($source['type']));
     }
 

@@ -8,6 +8,7 @@ namespace Netlogix\JsonApiOrg\Schema\Traits;
  * information, please view the LICENSE file which was distributed with this
  * source code.
  */
+use TYPO3\Flow\Utility\Arrays;
 
 /**
  * Sparse fields are optional resource fields thant can be either
@@ -15,41 +16,44 @@ namespace Netlogix\JsonApiOrg\Schema\Traits;
  * This is valid for both, attributes and relationships.
  * @see http://jsonapi.org/format/#fetching-sparse-fieldsets
  */
-trait SparseFieldsTrait {
+trait SparseFieldsTrait
+{
 
-	/**
-	 * @var array
-	 */
-	protected $sparseFields = array('*');
+    /**
+     * @var array
+     */
+    protected $sparseFields = array('*');
 
-	/**
-	 *
-	 */
-	public function setSparseFields($sparseFields) {
-		if (is_array($sparseFields)) {
-			$sparseFields = join(',', $sparseFields);
-		}
-		$this->sparseFields = array();
-		if (is_string($sparseFields)) {
-			foreach (\TYPO3\Flow\Utility\Arrays::trimExplode(',', $sparseFields) as $sparseField) {
-				if (!$sparseField) {
-					continue;
-				}
-				$this->sparseFields[$sparseField] = $sparseField;
-			}
-		}
-	}
+    /**
+     * @param mixed $sparseFields
+     */
+    public function setSparseFields($sparseFields)
+    {
+        if (is_array($sparseFields)) {
+            $sparseFields = join(',', $sparseFields);
+        }
+        $this->sparseFields = array();
+        if (is_string($sparseFields)) {
+            foreach (Arrays::trimExplode(',', $sparseFields) as $sparseField) {
+                if (!$sparseField) {
+                    continue;
+                }
+                $this->sparseFields[$sparseField] = $sparseField;
+            }
+        }
+    }
 
-	/**
-	 * @param string $result
-	 * @return array
-	 */
-	public function isAllowedSparseField($fieldName) {
-		if (in_array('*', $this->sparseFields)) {
-			return TRUE;
-		} else {
-			return in_array($fieldName, $this->sparseFields);
-		}
-	}
+    /**
+     * @param string $fieldName
+     * @return array
+     */
+    public function isAllowedSparseField($fieldName)
+    {
+        if (in_array('*', $this->sparseFields)) {
+            return true;
+        } else {
+            return in_array($fieldName, $this->sparseFields);
+        }
+    }
 
 }
