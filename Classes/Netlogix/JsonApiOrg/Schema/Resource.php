@@ -9,115 +9,127 @@ namespace Netlogix\JsonApiOrg\Schema;
  * source code.
  */
 
+use Netlogix\JsonApiOrg\Resource\Information\ResourceInformationInterface;
 use TYPO3\Flow\Annotations as Flow;
 
 /**
  * @see http://jsonapi.org/format/#document-resource-objects
  */
-abstract class Resource extends AbstractSchemaElement {
+abstract class Resource extends AbstractSchemaElement implements ResourceInterface
+{
 
-	/**
-	 * @var Object
-	 */
-	protected $payload;
+    /**
+     * @var Object
+     */
+    protected $payload;
 
-	/**
-	 * @var \Netlogix\JsonApiOrg\Resource\Information\ResourceInformationInterface
-	 */
-	protected $resourceInformation;
+    /**
+     * @var ResourceInformationInterface
+     */
+    protected $resourceInformation;
 
-	/**
-	 * @var \Netlogix\JsonApiOrg\Schema\Attributes
-	 */
-	protected $attributes;
+    /**
+     * @var Attributes
+     */
+    protected $attributes;
 
-	/**
-	 * @var \Netlogix\JsonApiOrg\Schema\Links
-	 */
-	protected $links;
+    /**
+     * @var Links
+     */
+    protected $links;
 
-	/**
-	 * @var \Netlogix\JsonApiOrg\Schema\Relationships
-	 */
-	protected $relationships;
+    /**
+     * @var Relationships
+     */
+    protected $relationships;
 
-	/**
-	 * @var \Netlogix\JsonApiOrg\Schema\Meta
-	 */
-	protected $meta;
+    /**
+     * @var Meta
+     */
+    protected $meta;
 
-	/**
-	 * Resource constructor.
-	 *
-	 * @param $payload
-	 * @param \Netlogix\JsonApiOrg\Resource\Information\ResourceInformationInterface $resourceInformation
-	 */
-	public function __construct($payload, \Netlogix\JsonApiOrg\Resource\Information\ResourceInformationInterface $resourceInformation = NULL) {
-		$this->payload = $payload;
-		$this->resourceInformation = $resourceInformation;
+    /**
+     * Resource constructor.
+     *
+     * @param $payload
+     * @param ResourceInformationInterface $resourceInformation
+     */
+    public function __construct(
+        $payload,
+        ResourceInformationInterface $resourceInformation = null
+    ) {
+        $this->payload = $payload;
+        $this->resourceInformation = $resourceInformation;
 
-		$this->attributes = new \Netlogix\JsonApiOrg\Schema\Attributes($this);
-		$this->links = new \Netlogix\JsonApiOrg\Schema\Links($this);
-		$this->relationships = new \Netlogix\JsonApiOrg\Schema\Relationships($this);
-		$this->meta = new \Netlogix\JsonApiOrg\Schema\Meta($this);
-	}
+        $this->attributes = new Attributes($this);
+        $this->links = new Links($this);
+        $this->relationships = new Relationships($this);
+        $this->meta = new Meta($this);
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getPayload() {
-		return $this->payload;
-	}
+    /**
+     * @return mixed
+     */
+    public function getPayload()
+    {
+        return $this->payload;
+    }
 
-	/**
-	 * @return \Netlogix\JsonApiOrg\Resource\Information\ResourceInformationInterface
-	 */
-	public function getResourceInformation() {
-		return $this->resourceInformation;
-	}
+    /**
+     * @return ResourceInformationInterface
+     */
+    public function getResourceInformation()
+    {
+        return $this->resourceInformation;
+    }
 
-	/**
-	 * @return array
-	 */
-	public function jsonSerialize () {
-		$result = $this->resourceMapper->getDataIdentifierForPayload($this->getPayload());
+    /**
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        $result = $this->resourceMapper->getDataIdentifierForPayload($this->getPayload());
 
-		foreach (array('attributes', 'links', 'relationships', 'meta') as $optionalField) {
-			$optionalValue = json_decode(json_encode($this->{$optionalField}), TRUE);
-			if ($optionalValue) {
-				$result[$optionalField] = $optionalValue;
-			}
-		}
+        foreach (array('attributes', 'links', 'relationships', 'meta') as $optionalField) {
+            $optionalValue = json_decode(json_encode($this->{$optionalField}), true);
+            if ($optionalValue) {
+                $result[$optionalField] = $optionalValue;
+            }
+        }
 
-		return $result;
-	}
+        return $result;
+    }
 
-	/**
-	 * @return Attributes
-	 */
-	public function getAttributes() {
-		return $this->attributes;
-	}
+    /**
+     * @return Attributes
+     */
+    public function getAttributes()
+    {
+        return $this->attributes;
+    }
 
-	/**
-	 * @return Links
-	 */
-	public function getLinks() {
-		return $this->links;
-	}
+    /**
+     * @return Links
+     */
+    public function getLinks()
+    {
+        return $this->links;
+    }
 
-	/**
-	 * @return Relationships
-	 */
-	public function getRelationships() {
-		return $this->relationships;
-	}
+    /**
+     * @return Relationships
+     */
+    public function getRelationships()
+    {
+        return $this->relationships;
+    }
 
-	/**
-	 * @return Meta
-	 */
-	public function getMeta() {
-		return $this->meta;
-	}
+    /**
+     * @return Meta
+     */
+    public function getMeta()
+    {
+        return $this->meta;
+    }
 
 }

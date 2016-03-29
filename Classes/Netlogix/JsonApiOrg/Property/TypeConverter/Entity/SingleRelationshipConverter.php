@@ -10,6 +10,7 @@ namespace Netlogix\JsonApiOrg\Property\TypeConverter\Entity;
  */
 
 use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Property\PropertyMappingConfigurationInterface;
 
 /**
  */
@@ -38,6 +39,7 @@ class SingleRelationshipConverter extends AbstractSchemaResourceBasedEntityConve
         if (!is_array($source) || !array_key_exists('data', $source)) {
             return false;
         }
+
         return $this->hasOnlyIdentifierProperties($source['data']);
     }
 
@@ -55,13 +57,17 @@ class SingleRelationshipConverter extends AbstractSchemaResourceBasedEntityConve
      * @param mixed $source
      * @param string $targetType
      * @param array $convertedChildProperties
-     * @param \TYPO3\Flow\Property\PropertyMappingConfigurationInterface $configuration
+     * @param PropertyMappingConfigurationInterface $configuration
      * @return mixed|\TYPO3\Flow\Error\Error the target type, or an error object if a user-error occurred
      * @throws \TYPO3\Flow\Property\Exception\TypeConverterException thrown in case a developer error occurred
      * @api
      */
-    public function convertFrom($source, $targetType, array $convertedChildProperties = array(), \TYPO3\Flow\Property\PropertyMappingConfigurationInterface $configuration = null)
-    {
+    public function convertFrom(
+        $source,
+        $targetType,
+        array $convertedChildProperties = array(),
+        PropertyMappingConfigurationInterface $configuration = null
+    ) {
         return $this->convertIdentifierProperties($source['data']);
     }
 

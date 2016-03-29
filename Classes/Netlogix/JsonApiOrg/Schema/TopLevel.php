@@ -9,87 +9,97 @@ namespace Netlogix\JsonApiOrg\Schema;
  * source code.
  */
 
+use Netlogix\JsonApiOrg\Schema;
+
 /**
  * @see http://jsonapi.org/format/#document-top-level
  */
-class TopLevel extends AbstractSchemaElement {
+class TopLevel extends AbstractSchemaElement
+{
 
-	/**
-	 * @var \Netlogix\JsonApiOrg\Schema\Resource|array<\Netlogix\JsonApiOrg\Schema\Resource>
-	 */
-	protected $data = array();
+    /**
+     * @var \Netlogix\JsonApiOrg\Schema\Resource|array<\Netlogix\JsonApiOrg\Schema\Resource>
+     */
+    protected $data = [];
 
-	/**
-	 * @var array<Error>
-	 */
-	protected $errors = array();
+    /**
+     * @var array<Error>
+     */
+    protected $errors = [];
 
-	/**
-	 * @var \Netlogix\JsonApiOrg\Schema\Meta
-	 */
-	protected $meta;
+    /**
+     * @var \Netlogix\JsonApiOrg\Schema\Meta
+     */
+    protected $meta;
 
-	/**
-	 * @var \Netlogix\JsonApiOrg\Schema\JsonApi
-	 */
-	protected $jsonapi;
+    /**
+     * @var \Netlogix\JsonApiOrg\Schema\JsonApi
+     */
+    protected $jsonapi;
 
-	/**
-	 * @var array<\Netlogix\JsonApiOrg\Schema\Resource>
-	 */
-	protected $included;
+    /**
+     * @var array<\Netlogix\JsonApiOrg\Schema\Resource>
+     */
+    protected $included;
 
-	/**
-	 * @var string
-	 */
-	protected $self;
+    /**
+     * @var string
+     */
+    protected $self;
 
-	/**
-	 * TopLevel constructor.
-	 */
-	public function __construct() {
-		$this->jsonapi = new JsonApi();
-	}
+    /**
+     * TopLevel constructor.
+     */
+    public function __construct()
+    {
+        $this->jsonapi = new JsonApi();
+    }
 
-	public function jsonSerialize() {
-		$result = array(
-			'data' => $this->data,
-		);
-		foreach (array('errors', 'meta', 'included', 'jsonapi') as $optionalField) {
-			$optionalValue = json_decode(json_encode($this->{$optionalField}), true);
-			if ($optionalValue) {
-				$result[$optionalField] = $optionalValue;
-			}
-		}
-		return $result;
-	}
+    public function jsonSerialize()
+    {
+        $result = array(
+            'data' => $this->data,
+        );
+        foreach (array('errors', 'meta', 'included', 'jsonapi') as $optionalField) {
+            $optionalValue = json_decode(json_encode($this->{$optionalField}), true);
+            if ($optionalValue) {
+                $result[$optionalField] = $optionalValue;
+            }
+        }
 
-	/**
-	 * @param \Netlogix\JsonApiOrg\Schema\Resource $resource
-	 */
-	public function setData(\Netlogix\JsonApiOrg\Schema\Resource $resource) {
-		$this->data = $resource;
-	}
+        return $result;
+    }
 
-	/**
-	 * @param \Netlogix\JsonApiOrg\Schema\Resource $resource
-	 */
-	public function addData(\Netlogix\JsonApiOrg\Schema\Resource $resource) {
-		$this->data[] = $resource;
-	}
+    /**
+     * @param Schema\Resource $resource
+     */
+    public function setData(Schema\Resource $resource)
+    {
+        $this->data = $resource;
+    }
 
-	/**
-	 * @param \Netlogix\JsonApiOrg\Schema\Error $error
-	 */
-	public function addError(\Netlogix\JsonApiOrg\Schema\Error $error) {
-		$this->errors[] = $error;
-	}
+    /**
+     * @param Schema\Resource $resource
+     */
+    public function addData(Schema\Resource $resource)
+    {
+        $this->data[] = $resource;
+    }
 
-	/**
-	 * @param \Netlogix\JsonApiOrg\Schema\Resource $include
-	 */
-	public function addIncluded(\Netlogix\JsonApiOrg\Schema\Resource $include) {
-		$this->included[] = $include;
-	}
+    /**
+     * @param Schema\Error $error
+     */
+    public function addError(Schema\Error $error)
+    {
+        $this->errors[] = $error;
+    }
+
+    /**
+     * @param \Netlogix\JsonApiOrg\Schema\Resource $include
+     */
+    public function addIncluded(Schema\Resource $include)
+    {
+        $this->included[] = $include;
+    }
 
 }

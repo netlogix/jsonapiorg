@@ -9,47 +9,52 @@ namespace Netlogix\JsonApiOrg\Schema\Traits;
  * source code.
  */
 
+use TYPO3\Flow\Utility\Arrays;
+
 /**
- * Include fieds means naming individual relationship paths hand
+ * Include fields means naming individual relationship paths hand
  * having even nested relationships added to the TopLevel object.
  *
  * @see http://jsonapi.org/format/#fetching-includes
  */
-trait IncludeFieldsTrait {
+trait IncludeFieldsTrait
+{
 
-	/**
-	 * @var array
-	 */
-	protected $includeFields = array('*');
+    /**
+     * @var array
+     */
+    protected $includeFields = array('*');
 
-	/**
-	 *
-	 */
-	public function setIncludeFields($includeFields) {
-		if (is_array($includeFields)) {
-			$includeFields = join(',', $includeFields);
-		}
-		$this->includeFields = array();
-		if (is_string($includeFields)) {
-			foreach (\TYPO3\Flow\Utility\Arrays::trimExplode(',', $includeFields) as $includeField) {
-				if (!$includeField) {
-					continue;
-				}
-				$this->includeFields[$includeField] = $includeField;
-			}
-		}
-	}
+    /**
+     * @param mixed $includeFields
+     */
+    public function setIncludeFields($includeFields)
+    {
+        if (is_array($includeFields)) {
+            $includeFields = join(',', $includeFields);
+        }
+        $this->includeFields = array();
+        if (is_string($includeFields)) {
+            foreach (Arrays::trimExplode(',', $includeFields) as $includeField) {
+                if (!$includeField) {
+                    continue;
+                }
+                $this->includeFields[$includeField] = $includeField;
+            }
+        }
+    }
 
-	/**
-	 * @param string $result
-	 * @return array
-	 */
-	public function isAllowedIncludeField($fieldName) {
-		if (in_array('*', $this->includeFields)) {
-			return TRUE;
-		} else {
-			return in_array($fieldName, $this->includeFields);
-		}
-	}
+    /**
+     * @param string $fieldName
+     * @return mixed
+     */
+    public function isAllowedIncludeField($fieldName)
+    {
+        if (in_array('*', $this->includeFields)) {
+            return true;
+        } else {
+            return in_array($fieldName, $this->includeFields);
+        }
+    }
 
 }

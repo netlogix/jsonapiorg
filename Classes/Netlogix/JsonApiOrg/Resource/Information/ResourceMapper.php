@@ -9,7 +9,16 @@ namespace Netlogix\JsonApiOrg\Resource\Information;
  * source code.
  */
 
+use Netlogix\JsonApiOrg\Property\TypeConverter\SchemaResource\ResourceConverter;
+use Netlogix\JsonApiOrg\Schema;
 use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Http\Request;
+use TYPO3\Flow\Http\Response;
+use TYPO3\Flow\Mvc\ActionRequest;
+use TYPO3\Flow\Mvc\Controller\Arguments;
+use TYPO3\Flow\Mvc\Controller\ControllerContext;
+use TYPO3\Flow\Mvc\Routing\UriBuilder;
+use TYPO3\Flow\Utility\TypeHandling;
 
 /**
  * The resource mapper converts any internal payload to
@@ -17,168 +26,183 @@ use TYPO3\Flow\Annotations as Flow;
  *
  * @Flow\Scope("singleton")
  */
-class ResourceMapper {
+class ResourceMapper
+{
 
-	/**
-	 * @var \TYPO3\Flow\Object\ObjectManagerInterface
-	 * @Flow\Inject
-	 */
-	protected $objectManager;
+    /**
+     * @var \TYPO3\Flow\Object\ObjectManagerInterface
+     * @Flow\Inject
+     */
+    protected $objectManager;
 
-	/**
-	 * @var \TYPO3\Flow\Reflection\ReflectionService
-	 * @Flow\Inject
-	 */
-	protected $reflectionService;
+    /**
+     * @var \TYPO3\Flow\Reflection\ReflectionService
+     * @Flow\Inject
+     */
+    protected $reflectionService;
 
-	/**
-	 * @var \TYPO3\Flow\Property\PropertyMapper
-	 * @Flow\Inject
-	 */
-	protected $propertyMapper;
+    /**
+     * @var \TYPO3\Flow\Property\PropertyMapper
+     * @Flow\Inject
+     */
+    protected $propertyMapper;
 
-	/**
-	 * @var \Netlogix\JsonApiOrg\Resource\Information\ExposableTypeMap
-	 * @Flow\Inject
-	 */
-	protected $exposableTypeMap;
+    /**
+     * @var \Netlogix\JsonApiOrg\Resource\Information\ExposableTypeMap
+     * @Flow\Inject
+     */
+    protected $exposableTypeMap;
 
-	/**
-	 * @var array<\Netlogix\JsonApiOrg\Resource\Information\ResourceInformationInterface>
-	 */
-	protected $resourceInformation = array();
+    /**
+     * @var array<\Netlogix\JsonApiOrg\Resource\Information\ResourceInformationInterface>
+     */
+    protected $resourceInformation = array();
 
-	/**
-	 * @var \TYPO3\Flow\Mvc\Controller\ControllerContext
-	 */
-	protected $controllerContext;
+    /**
+     * @var ControllerContext
+     */
+    protected $controllerContext;
 
-	/**
-	 * Lifecycle method, called after all dependencies have been injected.
-	 * Here, the Dto\Converter array gets initialized.
-	 *
-	 * @return void
-	 */
-	public function initializeObject() {
-		$this->initializeControllerContext();
-		$this->initializeConverters();
-	}
+    /**
+     * Lifecycle method, called after all dependencies have been injected.
+     * Here, the Dto\Converter array gets initialized.
+     *
+     * @return void
+     */
+    public function initializeObject()
+    {
+        $this->initializeControllerContext();
+        $this->initializeConverters();
+    }
 
-	/**
-	 * @return \TYPO3\Flow\Mvc\Controller\ControllerContext
-	 */
-	public function getControllerContext() {
-		return $this->controllerContext;
-	}
+    /**
+     * @return ControllerContext
+     */
+    public function getControllerContext()
+    {
+        return $this->controllerContext;
+    }
 
-	/**
-	 * Returns the resource information with the highest priority being capable
-	 * of dealing with the given $payload.
-	 *
-	 * The controllerContext is added to the resource information object to allow
-	 * it to create proper URIs.
-	 *
-	 * @todo Use runtime cache based on spl_object_hash
-	 * @param mixed $resource
-	 * @return \Netlogix\JsonApiOrg\Resource\Information\ResourceInformationInterface
-	 */
-	public function findResourceInformation($payload) {
+    /**
+     * Returns the resource information with the highest priority being capable
+     * of dealing with the given $payload.
+     *
+     * The controllerContext is added to the resource information object to allow
+     * it to create proper URIs.
+     *
+     * @todo Use runtime cache based on spl_object_hash
+     * @param mixed $payload
+     * @return \Netlogix\JsonApiOrg\Resource\Information\ResourceInformationInterface
+     */
+    public function findResourceInformation($payload)
+    {
 
-		if (is_array($payload) && isset($payload['type']) && isset($payload['id'])) {
-			$payload = $this->propertyMapper->convert((string)$payload['id'], $this->exposableTypeMap->getClassName($payload['type']));
-		}
+        if (is_array($payload) && isset($payload['type']) && isset($payload['id'])) {
+            $payload = $this->propertyMapper->convert((string)$payload['id'],
+                $this->exposableTypeMap->getClassName($payload['type']));
+        }
 
-		/** @var ResourceInformationInterface $resourceInformation */
-		foreach ($this->resourceInformation as $resourceInformation) {
-			if ($resourceInformation->canHandle($payload)) {
-				return $resourceInformation;
-			}
-		}
-	}
+        /** @var ResourceInformationInterface $resourceInformation */
+        foreach ($this->resourceInformation as $resourceInformation) {
+            if ($resourceInformation->canHandle($payload)) {
+                return $resourceInformation;
+            }
+        }
+        return null;
+    }
 
-	/**
-	 * For any given $payload, the array structure holding the
-	 * public type identifier as well as the resource id is returned.
-	 *
-	 * @param mixed $payload
-	 * @return array
-	 * @see http://jsonapi.org/format/#document-resource-identifier-objects
-	 */
-	public function getDataIdentifierForPayload($payload) {
-		$resourceInformation = $this->findResourceInformation($payload);
-		$resource = $resourceInformation->getResource($payload);
-		return array(
-			'type' => $this->exposableTypeMap->getType($resource->getType()),
-			'id' => $resource->getId()
-		);
-	}
+    /**
+     * For any given $payload, the array structure holding the
+     * public type identifier as well as the resource id is returned.
+     *
+     * @param mixed $payload
+     * @return array
+     * @see http://jsonapi.org/format/#document-resource-identifier-objects
+     */
+    public function getDataIdentifierForPayload($payload)
+    {
+        $resourceInformation = $this->findResourceInformation($payload);
+        $resource = $resourceInformation->getResource($payload);
 
-	/**
-	 * If a proper data identifier structure is given, the corresponding
-	 * payload is returned.
-	 *
-	 * @param mixed $identifier
-	 * @return mixed
-	 * @see http://jsonapi.org/format/#document-resource-identifier-objects
-	 */
-	public function getPayloadForDataIdentifier($dataIdentifier) {
-		if ($dataIdentifier === NULL) {
-			return NULL;
-		}
-		$resourceConverter = new \Netlogix\JsonApiOrg\Property\TypeConverter\SchemaResource\ResourceConverter();
-		/** @var \Netlogix\JsonApiOrg\Schema\Resource $resource */
-		$resource = $resourceConverter->convertFrom($dataIdentifier, \Netlogix\JsonApiOrg\Schema\Resource::class);
-		return $resource->getPayload();
-	}
+        return array(
+            'type' => $this->exposableTypeMap->getType($resource->getType()),
+            'id' => $resource->getId()
+        );
+    }
 
-	/**
-	 * @param mixed $payload
-	 * @return \TYPO3\Flow\Http\Uri
-	 * @see ResourceInformationInterface::getPublicResourceUri()
-	 */
-	public function getPublicResourceUri($payload) {
-		$resourceInformation = $this->findResourceInformation($payload);
-		return $resourceInformation->getPublicResourceUri($payload);
-	}
+    /**
+     * If a proper data identifier structure is given, the corresponding
+     * payload is returned.
+     *
+     * @param mixed $dataIdentifier
+     * @return mixed
+     * @see http://jsonapi.org/format/#document-resource-identifier-objects
+     */
+    public function getPayloadForDataIdentifier($dataIdentifier)
+    {
+        if ($dataIdentifier === null) {
+            return null;
+        }
+        $resourceConverter = new ResourceConverter();
+        /** @var Schema\Resource $resource */
+        $resource = $resourceConverter->convertFrom($dataIdentifier, Schema\Resource::class);
 
-	/**
-	 * The Resource Information most likely needs an UriBuilder, so having a
-	 * ControllerContext in place might come in handy.
-	 *
-	 * @return void
-	 */
-	protected function initializeControllerContext() {
+        return $resource->getPayload();
+    }
 
-		$request = new \TYPO3\Flow\Mvc\ActionRequest(\TYPO3\Flow\Http\Request::createFromEnvironment());
-		$request->setDispatched(true);
+    /**
+     * @param mixed $payload
+     * @return \TYPO3\Flow\Http\Uri
+     * @see ResourceInformationInterface::getPublicResourceUri()
+     */
+    public function getPublicResourceUri($payload)
+    {
+        $resourceInformation = $this->findResourceInformation($payload);
 
-		$response = new \TYPO3\Flow\Http\Response();
+        return $resourceInformation->getPublicResourceUri($payload);
+    }
 
-		$uriBuilder = new \TYPO3\Flow\Mvc\Routing\UriBuilder();
-		$uriBuilder->setRequest($request);
+    /**
+     * The Resource Information most likely needs an UriBuilder, so having a
+     * ControllerContext in place might come in handy.
+     *
+     * @return void
+     */
+    protected function initializeControllerContext()
+    {
 
-		$arguments = new \TYPO3\Flow\Mvc\Controller\Arguments(array());
+        $request = new ActionRequest(Request::createFromEnvironment());
+        $request->setDispatched(true);
 
-		$this->controllerContext = new \TYPO3\Flow\Mvc\Controller\ControllerContext($request, $response, $arguments, $uriBuilder);
-	}
+        $response = new Response();
 
-	/**
-	 * @return void
-	 */
-	protected function initializeConverters() {
+        $uriBuilder = new UriBuilder();
+        $uriBuilder->setRequest($request);
 
-		$this->resourceInformation = array();
+        $arguments = new Arguments(array());
 
-		foreach ($this->reflectionService->getAllImplementationClassNamesForInterface(ResourceInformationInterface::class) as $resourceInformationClassName) {
-			$this->resourceInformation[] = $this->objectManager->get($resourceInformationClassName);
-		}
-		usort($this->resourceInformation, function(ResourceInformationInterface $first, ResourceInformationInterface $second) {
-			if ($first->getPriority() == $second->getPriority()) {
-				return strcmp(\TYPO3\Flow\Utility\TypeHandling::getTypeForValue($first), \TYPO3\Flow\Utility\TypeHandling::getTypeForValue($second));
-			} else {
-				return $first->getPriority() < $second->getPriority();
-			}
-		});
-	}
+        $this->controllerContext = new ControllerContext($request, $response, $arguments, $uriBuilder);
+    }
+
+    /**
+     * @return void
+     */
+    protected function initializeConverters()
+    {
+
+        $this->resourceInformation = array();
+
+        foreach ($this->reflectionService->getAllImplementationClassNamesForInterface(ResourceInformationInterface::class) as $resourceInformationClassName) {
+            $this->resourceInformation[] = $this->objectManager->get($resourceInformationClassName);
+        }
+        usort($this->resourceInformation,
+            function (ResourceInformationInterface $first, ResourceInformationInterface $second) {
+                if ($first->getPriority() == $second->getPriority()) {
+                    return strcmp(TypeHandling::getTypeForValue($first), TypeHandling::getTypeForValue($second));
+                } else {
+                    return $first->getPriority() < $second->getPriority();
+                }
+            });
+    }
 
 }
