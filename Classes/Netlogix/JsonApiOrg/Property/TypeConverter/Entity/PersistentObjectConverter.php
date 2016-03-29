@@ -40,9 +40,6 @@ class PersistentObjectConverter extends AbstractSchemaResourceBasedEntityConvert
      */
     public function canConvertFrom($source, $targetType)
     {
-        if (!parent::canConvertFrom($source, $targetType)) {
-            return false;
-        }
         if (!is_array($source) || !array_key_exists('type', $source)) {
             return false;
         }
@@ -59,7 +56,7 @@ class PersistentObjectConverter extends AbstractSchemaResourceBasedEntityConvert
             return false;
         }
 
-        return !!$this->resourceMapper->findResourceInformation($targetType);
+        return !!$this->resourceMapper->findResourceInformation($className);
     }
 
     /**
