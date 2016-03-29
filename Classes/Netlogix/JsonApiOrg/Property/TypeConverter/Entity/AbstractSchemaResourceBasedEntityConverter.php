@@ -10,10 +10,11 @@ namespace Netlogix\JsonApiOrg\Property\TypeConverter\Entity;
  */
 
 use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Property\TypeConverter\PersistentObjectConverter;
 
 /**
  */
-abstract class AbstractSchemaResourceBasedEntityConverter extends \TYPO3\Flow\Property\TypeConverter\PersistentObjectConverter
+abstract class AbstractSchemaResourceBasedEntityConverter extends PersistentObjectConverter
 {
 
     /**

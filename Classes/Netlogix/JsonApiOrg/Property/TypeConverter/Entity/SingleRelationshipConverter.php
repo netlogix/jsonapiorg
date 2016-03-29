@@ -35,9 +35,6 @@ class SingleRelationshipConverter extends AbstractSchemaResourceBasedEntityConve
      */
     public function canConvertFrom($source, $targetType)
     {
-        if (!parent::canConvertFrom($source, $targetType)) {
-            return false;
-        }
         if (!is_array($source) || !array_key_exists('data', $source)) {
             return false;
         }
