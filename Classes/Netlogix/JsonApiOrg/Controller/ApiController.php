@@ -188,5 +188,37 @@ abstract class ApiController extends \TYPO3\Flow\Mvc\Controller\RestController {
 		}
 	}
 
+    protected function errorAction()
+    {
+        $validationResults = $this->arguments->getValidationResults()->getFlattenedErrors();
+        $result = ['errors' => []];
+
+        $pattern = '%^' . preg_quote($this->resourceArgumentName, '%') . '\\.?%';
+        /** @var \TYPO3\Flow\Error\Error $validationResult */
+        foreach ($validationResults as $key => $validationResult) {
+            if (preg_match($pattern, $key)) {
+                $key = preg_replace($pattern, '', $key);
+                $key = rtrim('/data/' . str_replace('.', '/', $key), '/');
+                $source = ['pointer' => $key];
+            } else {
+                $key = '/' . str_replace('.', '/', $key);
+                $source = ['parameter' => $key];
+            }
+
+            /** @var \TYPO3\Flow\Validation\Error $error */
+            foreach ($validationResult as $error) {
+                $result['errors'][] = array(
+                    'source' => $source,
+                    'code' => $error->getCode(),
+                    'title' => $error->render()
+                );
+            }
+        }
+        $this->response->setStatus(400);
+        $this->response->setHeader('Content-Type', current($this->supportedMediaTypes));
+
+        return json_encode($result, JSON_PRETTY_PRINT);
+    }
+
 
 }
