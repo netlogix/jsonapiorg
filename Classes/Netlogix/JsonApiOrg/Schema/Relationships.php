@@ -9,13 +9,11 @@ namespace Netlogix\JsonApiOrg\Schema;
  * source code.
  */
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Netlogix\JsonApiOrg\Schema\Traits\IncludeFieldsTrait;
 use Netlogix\JsonApiOrg\Schema\Traits\ResourceBasedTrait;
 use Netlogix\JsonApiOrg\Schema\Traits\SparseFieldsTrait;
 use TYPO3\Flow\Annotations as Flow;
-use TYPO3\Flow\Reflection\ObjectAccess;
 
 /**
  * @see http://jsonapi.org/format/#document-resource-object-relationships
@@ -84,7 +82,7 @@ class Relationships extends AbstractSchemaElement implements \IteratorAggregate,
     {
         $result = array_merge($this->getBasicResourceRelationshipValue($fieldName), array('data' => null));
 
-        $relationship = ObjectAccess::getProperty($this->getPayload(), $fieldName);
+        $relationship = $this->getResource()->getPayloadProperty($fieldName);
         if (!is_null($relationship)) {
             $result['data'] = $this->resourceMapper->getDataIdentifierForPayload($relationship);
         }
@@ -102,9 +100,8 @@ class Relationships extends AbstractSchemaElement implements \IteratorAggregate,
      */
     protected function setResourceSingleRelationshipValue($fieldName, $value)
     {
-        $payload = $this->getPayload();
         $relationship = $this->resourceMapper->getPayloadForDataIdentifier($value['data']);
-        ObjectAccess::setProperty($payload, $fieldName, $relationship);
+        $this->getResource()->setPayloadProperty($fieldName, $relationship);
     }
 
     /**
@@ -114,7 +111,7 @@ class Relationships extends AbstractSchemaElement implements \IteratorAggregate,
     {
         $result = array_merge($this->getBasicResourceRelationshipValue($fieldName), array('data' => array()));
 
-        foreach (ObjectAccess::getProperty($this->getPayload(), $fieldName) as $relationship) {
+        foreach ($this->getResource()->getPayloadProperty($fieldName) as $relationship) {
             if (!is_null($relationship)) {
                 $result['data'][] = $this->resourceMapper->getDataIdentifierForPayload($relationship);
             }
@@ -136,11 +133,11 @@ class Relationships extends AbstractSchemaElement implements \IteratorAggregate,
             $collection[] = $this->resourceMapper->getPayloadForDataIdentifier($relationship);
         }
 
-        $existingCollection = ObjectAccess::getProperty($payload, $fieldName);
+        $existingCollection = $this->getResource()->getPayloadProperty($fieldName);
         if (is_object($existingCollection) && $existingCollection instanceof Collection) {
-            ObjectAccess::setProperty($payload, $fieldName, new ArrayCollection($collection));
+            $this->getResource()->setPayloadProperty($fieldName, new \Doctrine\Common\Collections\ArrayCollection($collection));
         } else {
-            ObjectAccess::setProperty($payload, $fieldName, $collection);
+            $this->getResource()->setPayloadProperty($fieldName, $collection);
         }
 
     }

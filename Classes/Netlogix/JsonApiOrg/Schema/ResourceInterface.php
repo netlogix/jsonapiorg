@@ -92,4 +92,16 @@ interface ResourceInterface extends \JsonSerializable
      */
     public function getMeta();
 
+    /**
+     * @param string $propertyName
+     * @return mixed
+     */
+    public function getPayloadProperty($propertyName);
+
+    /**
+     * @param string $propertyName
+     * @param $value
+     */
+    public function setPayloadProperty($propertyName, $value);
+
 }
