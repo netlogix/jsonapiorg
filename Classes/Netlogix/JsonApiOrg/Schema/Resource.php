@@ -57,7 +57,8 @@ abstract class Resource extends AbstractSchemaElement implements ResourceInterfa
     public function __construct(
         $payload,
         ResourceInformationInterface $resourceInformation = null
-    ) {
+    )
+    {
         $this->payload = $payload;
         $this->resourceInformation = $resourceInformation;
 

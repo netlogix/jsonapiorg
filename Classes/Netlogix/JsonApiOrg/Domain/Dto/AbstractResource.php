@@ -120,4 +120,24 @@ abstract class AbstractResource extends Resource implements ResourceInterface
         return $this->persistenceManager->getIdentifierByObject($this->getPayload());
     }
 
+    /**
+     * @param string $propertyName
+     * @return mixed
+     * @throws \TYPO3\Flow\Reflection\Exception\PropertyNotAccessibleException
+     */
+    public function getPayloadProperty($propertyName)
+    {
+        return \TYPO3\Flow\Reflection\ObjectAccess::getProperty($this->getPayload(), $propertyName);
+    }
+
+    /**
+     * @param string $propertyName
+     * @param $value
+     */
+    public function setPayloadProperty($propertyName, $value)
+    {
+        $payload = $this->getPayload();
+        \TYPO3\Flow\Reflection\ObjectAccess::setProperty($payload, $propertyName, $value);
+    }
+
 }

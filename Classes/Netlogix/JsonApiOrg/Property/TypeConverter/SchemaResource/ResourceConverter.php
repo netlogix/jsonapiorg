@@ -84,11 +84,11 @@ class ResourceConverter extends AbstractTypeConverter
             $source['type'] = $this->exposableTypeMap->getType($typeIdentifier);
         }
 
-        $arguments = [];
         if (array_key_exists('id', $source)) {
-            $arguments['__identity'] = $source['id'];
+            $arguments = $source['id'];
+        } else {
+            $arguments = [];
         }
-
         $payload = $this->propertyMapper->convert($arguments, $this->exposableTypeMap->getClassName($source['type']));
 
         $resourceInformation = $this->resourceMapper->findResourceInformation($payload);

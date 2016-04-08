@@ -11,7 +11,6 @@ namespace Netlogix\JsonApiOrg\Schema;
 
 use Netlogix\JsonApiOrg\Schema\Traits\ResourceBasedTrait;
 use Netlogix\JsonApiOrg\Schema\Traits\SparseFieldsTrait;
-use TYPO3\Flow\Reflection\ObjectAccess;
 
 /**
  * @see http://jsonapi.org/format/#document-resource-object-attributes
@@ -56,9 +55,7 @@ class Attributes extends AbstractSchemaElement implements \ArrayAccess
     public function offsetGet($fieldName)
     {
         if ($this->offsetExists($fieldName)) {
-            $payload = $this->getPayload();
-
-            return ObjectAccess::getProperty($payload, $fieldName);
+            return $this->getResource()->getPayloadProperty($fieldName);
         }
         return null;
     }
@@ -71,9 +68,7 @@ class Attributes extends AbstractSchemaElement implements \ArrayAccess
     public function offsetSet($fieldName, $value)
     {
         if ($this->offsetExists($fieldName)) {
-            $payload = $this->getPayload();
-
-            return ObjectAccess::setProperty($payload, $fieldName, $value);
+            return $this->getResource()->setPayloadProperty($fieldName, $value);
         }
         return null;
     }

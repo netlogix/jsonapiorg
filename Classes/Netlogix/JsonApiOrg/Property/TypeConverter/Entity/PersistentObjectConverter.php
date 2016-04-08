@@ -29,6 +29,12 @@ class PersistentObjectConverter extends AbstractSchemaResourceBasedEntityConvert
     protected $resourceMapper;
 
     /**
+     * @var \TYPO3\Flow\Reflection\ReflectionService
+     * @Flow\Inject
+     */
+    protected $reflectionService;
+
+    /**
      * @var array
      */
     protected $sourceTypes = array('array');
@@ -90,12 +96,20 @@ class PersistentObjectConverter extends AbstractSchemaResourceBasedEntityConvert
         }
         if (array_key_exists('relationships', $source)) {
             $arguments = array_merge($arguments, $source['relationships']);
+            foreach (array_keys($source['relationships']) as $relationshipName) {
+                $configuration->forProperty($relationshipName)->allowProperties('data');
+                $configuration->forProperty($relationshipName . '.data')->allowAllProperties();
+            }
         }
         if (array_key_exists('id', $source)) {
-            $arguments['__identity'] = $source['id'];
+            if ($arguments) {
+                $arguments['__identity'] = $source['id'];
+            } else {
+                $arguments = $source['id'];
+            }
         }
 
-        return $this->propertyMapper->convert($arguments, $this->exposableTypeMap->getClassName($source['type']));
+        return $this->propertyMapper->convert($arguments, $this->exposableTypeMap->getClassName($source['type']), $configuration);
     }
 
 }
