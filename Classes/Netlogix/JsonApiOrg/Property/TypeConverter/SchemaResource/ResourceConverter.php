@@ -38,7 +38,7 @@ class ResourceConverter extends AbstractTypeConverter
     protected $resourceMapper;
 
     /**
-     * @var \Netlogix\JsonApiOrg\Resource\Information\ExposableTypeMap
+     * @var \Netlogix\JsonApiOrg\Resource\Information\ExposableTypeMapInterface
      * @Flow\Inject
      */
     protected $exposableTypeMap;
