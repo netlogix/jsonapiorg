@@ -24,7 +24,7 @@ use TYPO3\Flow\Property\Exception\FormatNotSupportedException;
  *
  * @Flow\Scope("singleton")
  */
-class ExposableTypeMap
+class ExposableTypeMap implements ExposableTypeMapInterface
 {
 
     /**

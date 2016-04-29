@@ -24,7 +24,7 @@ abstract class AbstractSchemaResourceBasedEntityConverter extends PersistentObje
     protected $propertyMapper;
 
     /**
-     * @var \Netlogix\JsonApiOrg\Resource\Information\ExposableTypeMap
+     * @var \Netlogix\JsonApiOrg\Resource\Information\ExposableTypeMapInterface
      * @Flow\Inject
      */
     protected $exposableTypeMap;
