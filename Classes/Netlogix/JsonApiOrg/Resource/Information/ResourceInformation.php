@@ -206,7 +206,7 @@ abstract class ResourceInformation
      * @param mixed $resource
      * @return array
      */
-    protected function getResourceControllerArguments($resource)
+    public function getResourceControllerArguments($resource)
     {
         return array(
             'resource' => $resource,
