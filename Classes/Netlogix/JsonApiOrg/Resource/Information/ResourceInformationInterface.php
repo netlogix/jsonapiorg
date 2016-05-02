@@ -67,4 +67,10 @@ interface ResourceInformationInterface
      */
     public function getPublicRelatedUri($payload, $relationshipName);
 
+    /**
+     * @param mixed $payload
+     * @return array
+     */
+    public function getResourceControllerArguments($payload);
+
 }
