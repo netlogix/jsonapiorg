@@ -40,7 +40,7 @@ class SingleRelationshipConverter extends AbstractSchemaResourceBasedEntityConve
             return false;
         }
 
-        return $this->hasOnlyIdentifierProperties($source['data']);
+        return is_null($source['data']) ?: $this->hasOnlyIdentifierProperties($source['data']);
     }
 
     /**
@@ -68,7 +68,8 @@ class SingleRelationshipConverter extends AbstractSchemaResourceBasedEntityConve
         array $convertedChildProperties = array(),
         PropertyMappingConfigurationInterface $configuration = null
     ) {
-        return $this->convertIdentifierProperties($source['data']);
+		xdebug_break();
+        return is_null($source['data']) ? null : $this->convertIdentifierProperties($source['data']);
     }
 
 }
