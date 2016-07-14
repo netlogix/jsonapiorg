@@ -23,7 +23,7 @@ trait IncludeFieldsTrait
     /**
      * @var array
      */
-    protected $includeFields = array('*');
+    protected $includeFields = array();
 
     /**
      * @param mixed $includeFields
