@@ -68,7 +68,6 @@ class SingleRelationshipConverter extends AbstractSchemaResourceBasedEntityConve
         array $convertedChildProperties = array(),
         PropertyMappingConfigurationInterface $configuration = null
     ) {
-		xdebug_break();
         return is_null($source['data']) ? null : $this->convertIdentifierProperties($source['data']);
     }
 
