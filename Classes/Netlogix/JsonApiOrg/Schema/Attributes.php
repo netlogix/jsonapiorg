@@ -11,6 +11,8 @@ namespace Netlogix\JsonApiOrg\Schema;
 
 use Netlogix\JsonApiOrg\Schema\Traits\ResourceBasedTrait;
 use Netlogix\JsonApiOrg\Schema\Traits\SparseFieldsTrait;
+use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Property\PropertyMapper;
 
 /**
  * @see http://jsonapi.org/format/#document-resource-object-attributes
@@ -22,6 +24,12 @@ class Attributes extends AbstractSchemaElement implements \ArrayAccess
     use SparseFieldsTrait;
 
     /**
+     * @var PropertyMapper
+     * @Flow\Inject
+     */
+    protected $propertyMapper;
+
+    /**
      * @return array
      */
     public function jsonSerialize()
@@ -31,8 +39,12 @@ class Attributes extends AbstractSchemaElement implements \ArrayAccess
             if (!$this->isAllowedSparseField($fieldName)) {
                 continue;
             }
-
             $result[$fieldName] = $this->offsetGet($fieldName);
+            if (is_object($result[$fieldName])) {
+                try {
+                    $result[$fieldName] = $this->propertyMapper->convert($result[$fieldName], 'string');
+                } catch (\Exception $e) {}
+            }
         }
 
         return $result;
