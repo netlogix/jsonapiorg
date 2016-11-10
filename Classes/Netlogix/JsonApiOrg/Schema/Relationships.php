@@ -100,14 +100,16 @@ class Relationships extends AbstractSchemaElement implements \IteratorAggregate,
      */
     protected function setResourceSingleRelationshipValue($fieldName, $value)
     {
-        if (array_key_exists('data', $value)) {
-            $relationship = $this->resourceMapper->getPayloadForDataIdentifier($value['data']);
-            $this->getResource()->setPayloadProperty($fieldName, $relationship);
+        if (!array_key_exists('data', $value)) {
+            return;
         }
+        $relationship = $this->resourceMapper->getPayloadForDataIdentifier($value['data']);
+        $this->getResource()->setPayloadProperty($fieldName, $relationship);
     }
 
     /**
      * @param string $fieldName
+     * @return mixed
      */
     protected function getResourceCollectionRelationshipValue($fieldName)
     {
@@ -128,13 +130,15 @@ class Relationships extends AbstractSchemaElement implements \IteratorAggregate,
      */
     protected function setResourceCollectionRelationshipValue($fieldName, $value)
     {
+        if (!array_key_exists('data', $value)) {
+            return;
+        }
+
         $payload = $this->getPayload();
 
         $collection = array();
-        if (array_key_exists('data', $value)) {
-            foreach ($value['data'] as $relationship) {
-                $collection[] = $this->resourceMapper->getPayloadForDataIdentifier($relationship);
-            }
+        foreach ($value['data'] as $relationship) {
+            $collection[] = $this->resourceMapper->getPayloadForDataIdentifier($relationship);
         }
 
         $existingCollection = $this->getResource()->getPayloadProperty($fieldName);
