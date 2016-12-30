@@ -71,8 +71,7 @@ class TypedArrayConverter extends AbstractSchemaResourceBasedEntityConverter
         $targetType,
         array $convertedChildProperties = array(),
         PropertyMappingConfigurationInterface $configuration = null
-    )
-    {
+    ) {
         $result = $this->typedArrayConverter->convertFrom($source['data'], $targetType, $convertedChildProperties, $configuration);
         return $result['data'];
     }

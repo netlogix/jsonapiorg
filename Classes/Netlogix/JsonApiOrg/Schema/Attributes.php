@@ -43,7 +43,8 @@ class Attributes extends AbstractSchemaElement implements \ArrayAccess
             if (is_object($result[$fieldName])) {
                 try {
                     $result[$fieldName] = $this->propertyMapper->convert($result[$fieldName], 'string');
-                } catch (\Exception $e) {}
+                } catch (\Exception $e) {
+                }
             }
         }
 

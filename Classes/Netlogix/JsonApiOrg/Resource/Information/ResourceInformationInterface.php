@@ -1,13 +1,13 @@
 <?php
 namespace Netlogix\JsonApiOrg\Resource\Information;
 
-    /*
-     * This file is part of the Netlogix.JsonApiOrg package.
-     *
-     * This package is Open Source Software. For the full copyright and license
-     * information, please view the LICENSE file which was distributed with this
-     * source code.
-     */
+/*
+ * This file is part of the Netlogix.JsonApiOrg package.
+ *
+ * This package is Open Source Software. For the full copyright and license
+ * information, please view the LICENSE file which was distributed with this
+ * source code.
+ */
 
 /**
  * The ResourceInformation is a mapping schema for bringing
