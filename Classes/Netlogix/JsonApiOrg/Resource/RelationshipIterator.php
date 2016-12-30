@@ -11,7 +11,6 @@ namespace Netlogix\JsonApiOrg\Resource;
 
 use Doctrine\Common\Collections\Collection;
 use Netlogix\JsonApiOrg\Schema\Relationships;
-use Netlogix\JsonApiOrg\Schema\Resource;
 use Netlogix\JsonApiOrg\Schema\ResourceInterface;
 use Netlogix\JsonApiOrg\Schema\TopLevel;
 use TYPO3\Flow\Annotations as Flow;
@@ -49,13 +48,6 @@ class RelationshipIterator
      * @var array
      */
     protected $fields = array();
-
-    /**
-     * @var \TYPO3\Flow\Property\PropertyMapper
-     * @Flow\Inject
-     */
-    protected $propertyMapper;
-
 
     /**
      * @var \Netlogix\JsonApiOrg\Resource\Information\ResourceMapper
@@ -102,23 +94,14 @@ class RelationshipIterator
      */
     protected function initializeStack($resource)
     {
-
         $this->stack = new RequestStack();
         if (is_array($resource) || (is_object($resource) && $resource instanceof Collection) || (is_object($resource) && $resource instanceof QueryResultInterface)) {
-
             foreach ($resource as $singleResource) {
-                $resourceUri = $this->resourceMapper->getPublicResourceUri($singleResource);
-                $dataIdentifier = $this->resourceMapper->getDataIdentifierForPayload($singleResource);
-                $this->stack->push((string)$resourceUri, $dataIdentifier, RequestStack::POSITION_DATACOLLECTION);
+                $this->stack->push($singleResource, RequestStack::POSITION_DATACOLLECTION);
             }
-
         } else {
-            $resourceUri = $this->resourceMapper->getPublicResourceUri($resource);
-            $dataIdentifier = $this->resourceMapper->getDataIdentifierForPayload($resource);
-            $this->stack->push((string)$resourceUri, $dataIdentifier, RequestStack::POSITION_DATA);
-
+            $this->stack->push($resource, RequestStack::POSITION_DATA);
         }
-
     }
 
     /**
@@ -163,25 +146,20 @@ class RelationshipIterator
      */
     protected function fetchResourceContentAndQueueRelationships(array $resourceWorkloadPackage)
     {
+        $object = $resourceWorkloadPackage[RequestStack::RESULT_RESOURCE];
+        $resource = $this->resourceMapper->findResourceInformation($object)->getResource($object);
+        $nestingPaths = $this->stack->getNestingPaths($object);
 
-        $requestUri = $resourceWorkloadPackage[RequestStack::RESULT_URI];
-
-        $resource = $this->resourceResolver->resourceRequest($resourceWorkloadPackage);
-
-        /** @var \Netlogix\JsonApiOrg\Schema\Resource $resource */
-        $resource = $this->propertyMapper->convert($resource, Resource::class);
-        $nestingPaths = $this->stack->getNestingPaths($requestUri);
-
-        $effektiveFields = $this->getEffektiveFieldsForResource($resource);
-        if (!is_null($effektiveFields)) {
-            $resource->getAttributes()->setSparseFields($effektiveFields);
-            $resource->getRelationships()->setSparseFields($effektiveFields);
+        $effectiveFields = $this->getEffectiveFieldsForResource($resource);
+        if (!is_null($effectiveFields)) {
+            $resource->getAttributes()->setSparseFields($effectiveFields);
+            $resource->getRelationships()->setSparseFields($effectiveFields);
         }
 
         $effectiveInclude = $this->getEffectiveIncludeForNestingPaths($nestingPaths);
         $resource->getRelationships()->setIncludeFields($effectiveInclude);
 
-        $this->stack->finalize($requestUri, $resource);
+        $this->stack->finalize($object, $resource);
 
         $relationshipsToBeApiExposed = $resource->getRelationshipsToBeApiExposed();
 
@@ -198,18 +176,17 @@ class RelationshipIterator
 
             switch ($relationshipsToBeApiExposed[$relationshipName]) {
                 case Relationships::RELATIONSHIP_TYPE_SINGLE:
-                    $this->pushUriToStack($relationshipContent['data'], $relationshipNestingPaths);
+                    $this->pushRelation($relationshipContent['data'], $relationshipNestingPaths);
                     break;
 
                 case Relationships::RELATIONSHIP_TYPE_COLLECTION:
                     foreach ($relationshipContent['data'] as $relation) {
-                        $this->pushUriToStack($relation, $relationshipNestingPaths);
+                        $this->pushRelation($relation, $relationshipNestingPaths);
                     }
                     break;
 
             }
         }
-
     }
 
     /**
@@ -240,7 +217,7 @@ class RelationshipIterator
      * @param ResourceInterface $resource
      * @return mixed
      */
-    protected function getEffektiveFieldsForResource(ResourceInterface $resource)
+    protected function getEffectiveFieldsForResource(ResourceInterface $resource)
     {
         $type = $this->exposableTypeMap->getType($resource->getType());
         if (array_key_exists($type, $this->fields)) {
@@ -269,25 +246,11 @@ class RelationshipIterator
      * @param array $relation
      * @param array $relationshipNestingPaths
      */
-    protected function pushUriToStack($relation, $relationshipNestingPaths)
+    protected function pushRelation($relation, $relationshipNestingPaths)
     {
-        $uri = $this->getResourceUriForArrayFormat($relation);
         foreach ($relationshipNestingPaths as $nestingPath) {
-            $this->stack->push((string)$uri, $relation, RequestStack::POSITION_INCLUDE, $nestingPath);
+            $this->stack->pushIdentifier($relation, RequestStack::POSITION_INCLUDE, $nestingPath);
         }
-    }
-
-    /**
-     * @param array $relation
-     * @return string
-     */
-    protected function getResourceUriForArrayFormat($relation)
-    {
-        $resource = $this->propertyMapper->convert((string)$relation['id'],
-            $this->exposableTypeMap->getClassName($relation['type']));
-        $resourceInformation = $this->resourceMapper->findResourceInformation($resource);
-
-        return $resourceInformation->getPublicResourceUri($resource);
     }
 
     /**

@@ -23,38 +23,58 @@ class RequestStack
     const POSITION_DATACOLLECTION = 'data[]';
     const POSITION_INCLUDE = 'include';
 
-    const RESULT_URI = 'uri';
+    const RESULT_RESOURCE = 'resource';
     const RESULT_POSITION = 'position';
     const RESULT_DATA = 'data';
-    const RESULT_DATA_IDENTIFIER = 'id';
     const RESULT_NESTING_PATHS = 'nestingPaths';
 
-    protected $open = array();
+    protected $open = [];
 
-    protected $results = array();
+    protected $results = [];
 
     /**
-     * @param string $uri
-     * @param array $dataIdentifier
+     * @var \TYPO3\Flow\Property\PropertyMapper
+     * @Flow\Inject
+     */
+    protected $propertyMapper;
+
+    /**
+     * @var \Netlogix\JsonApiOrg\Resource\Information\ExposableTypeMapInterface
+     * @Flow\Inject
+     */
+    protected $exposableTypeMap;
+
+    /**
+     * @param object $resource
      * @param string $position
      * @param string $nestingPath
      */
-    public function push($uri, array $dataIdentifier, $position = self::POSITION_DATA, $nestingPath = '')
+    public function push($resource, $position = self::POSITION_DATA, $nestingPath = '')
     {
-        if (array_key_exists($uri, $this->results)) {
-            $this->results[$uri][self::RESULT_NESTING_PATHS][$nestingPath] = $nestingPath;
-
+        $hash = spl_object_hash($resource);
+        if (array_key_exists($hash, $this->results)) {
+            $this->results[$hash][self::RESULT_NESTING_PATHS][$nestingPath] = $nestingPath;
             return;
-        }
 
-        $this->results[$uri] = array(
-            self::RESULT_URI => $uri,
+        }
+        $this->results[$hash] = [
+            self::RESULT_RESOURCE => $resource,
             self::RESULT_POSITION => $position,
-            self::RESULT_DATA_IDENTIFIER => $dataIdentifier,
             self::RESULT_DATA => null,
-            self::RESULT_NESTING_PATHS => array($nestingPath => $nestingPath)
-        );
-        $this->open[] = $uri;
+            self::RESULT_NESTING_PATHS => [$nestingPath => $nestingPath]
+        ];
+        $this->open[] = $hash;
+    }
+
+    /**
+     * @param array $identifier
+     * @param string $position
+     * @param string $nestingPath
+     */
+    public function pushIdentifier(array $identifier, $position = self::POSITION_INCLUDE, $nestingPath = '')
+    {
+        $resource = $this->propertyMapper->convert((string)$identifier['id'], $this->exposableTypeMap->getClassName($identifier['type']));
+        $this->push($resource, $position, $nestingPath);
     }
 
     /**
@@ -71,12 +91,13 @@ class RequestStack
     }
 
     /**
-     * @param string $uri
-     * @param Schema\Resource $content
+     * @param object $resource
+     * @param Schema\ResourceInterface $content
      */
-    public function finalize($uri, Schema\Resource $content)
+    public function finalize($resource, Schema\ResourceInterface $content)
     {
-        $this->results[$uri][self::RESULT_DATA] = $content;
+        $hash = spl_object_hash($resource);
+        $this->results[$hash][self::RESULT_DATA] = $content;
     }
 
     /**
@@ -88,12 +109,13 @@ class RequestStack
     }
 
     /**
-     * @param $uri
+     * @param object $resource
      * @return mixed
      */
-    public function getNestingPaths($uri)
+    public function getNestingPaths($resource)
     {
-        return $this->results[$uri][self::RESULT_NESTING_PATHS];
+        $hash = spl_object_hash($resource);
+        return $this->results[$hash][self::RESULT_NESTING_PATHS];
     }
 
 }
