@@ -29,11 +29,22 @@ class Relationships extends AbstractSchemaElement implements \IteratorAggregate,
     const RELATIONSHIP_TYPE_COLLECTION = 'collection';
 
     /**
+     * @var array
+     */
+    protected $jsonSerializeCache = [];
+
+    /**
      * @return array
      */
     public function jsonSerialize()
     {
-        $result = array();
+        $identifier = serialize([$this->sparseFields, $this->includeFields]);
+
+        if (array_key_exists($identifier, $this->jsonSerializeCache)) {
+            return $this->jsonSerializeCache[$identifier];
+        }
+
+        $this->jsonSerializeCache[$identifier] = [];
         foreach ($this->getRelationshipsToBeApiExposed() as $fieldName => $relationshipType) {
 
             if (!$this->isAllowedSparseField($fieldName)) {
@@ -41,18 +52,18 @@ class Relationships extends AbstractSchemaElement implements \IteratorAggregate,
             }
 
             if (!$this->isAllowedIncludeField($fieldName)) {
-                $result[$fieldName] = $this->getBasicResourceRelationshipValue($fieldName);
+                $this->jsonSerializeCache[$identifier][$fieldName] = $this->getBasicResourceRelationshipValue($fieldName);
 
             } elseif ($relationshipType === Relationships::RELATIONSHIP_TYPE_SINGLE) {
-                $result[$fieldName] = $this->getResourceSingleRelationshipValue($fieldName);
+                $this->jsonSerializeCache[$identifier][$fieldName] = $this->getResourceSingleRelationshipValue($fieldName);
 
             } elseif ($relationshipType === Relationships::RELATIONSHIP_TYPE_COLLECTION) {
-                $result[$fieldName] = $this->getResourceCollectionRelationshipValue($fieldName);
+                $this->jsonSerializeCache[$identifier][$fieldName] = $this->getResourceCollectionRelationshipValue($fieldName);
 
             }
         }
 
-        return $result;
+        return $this->jsonSerializeCache[$identifier];
     }
 
     /**

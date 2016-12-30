@@ -46,7 +46,7 @@ trait IncludeFieldsTrait
 
     /**
      * @param string $fieldName
-     * @return mixed
+     * @return boolean
      */
     public function isAllowedIncludeField($fieldName)
     {

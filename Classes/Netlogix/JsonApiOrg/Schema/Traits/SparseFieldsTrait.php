@@ -45,7 +45,7 @@ trait SparseFieldsTrait
 
     /**
      * @param string $fieldName
-     * @return array
+     * @return boolean
      */
     public function isAllowedSparseField($fieldName)
     {
