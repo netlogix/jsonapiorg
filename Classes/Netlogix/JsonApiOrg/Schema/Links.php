@@ -8,6 +8,7 @@ namespace Netlogix\JsonApiOrg\Schema;
      * information, please view the LICENSE file which was distributed with this
      * source code.
      */
+use Netlogix\JsonApiOrg\Domain\Model\LinksAwareModelInterface;
 use Netlogix\JsonApiOrg\Schema\Traits\ResourceBasedTrait;
 
 /**
@@ -23,9 +24,16 @@ class Links extends AbstractSchemaElement implements \ArrayAccess
      */
     public function jsonSerialize()
     {
-        return array(
-            'self' => (string)$this->getResourceInformation()->getPublicResourceUri($this->getPayload()),
-        );
+        $payload = $this->getPayload();
+        $links = array();
+        if ($payload instanceof LinksAwareModelInterface) {
+            $links = $payload->buildLinks($this->getResourceInformation()->getUriBuilder());
+        }
+        if (empty($links['self'])) {
+            $links['self'] = (string)$this->getResourceInformation()->getPublicResourceUri($payload);
+        }
+
+        return $links;
     }
 
     /**
