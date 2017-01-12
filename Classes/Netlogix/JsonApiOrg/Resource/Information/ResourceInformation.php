@@ -183,6 +183,20 @@ abstract class ResourceInformation
     }
 
     /**
+     * Get a UriBuilder for creating URIs for a resource.
+     *
+     * @return \TYPO3\Flow\Mvc\Routing\UriBuilder
+     */
+    public function getUriBuilder()
+    {
+        $uriBuilder = $this->resourceMapper->getControllerContext()->getUriBuilder();
+
+        $uriBuilder->reset()->setFormat($this->format)->setCreateAbsoluteUri(true);
+
+        return $uriBuilder;
+    }
+
+    /**
      * @param mixed $resource
      * @param string $controllerActionName
      * @param array $controllerArguments
@@ -191,9 +205,7 @@ abstract class ResourceInformation
     protected function getPublicUri($resource, $controllerActionName, array $controllerArguments = array())
     {
 
-        $uriBuilder = $this->resourceMapper->getControllerContext()->getUriBuilder();
-
-        $uriBuilder->reset()->setFormat($this->format)->setCreateAbsoluteUri(true);
+        $uriBuilder = $this->getUriBuilder();
 
         $uri = $uriBuilder->uriFor($controllerActionName,
             array_merge($this->getResourceControllerArguments($resource), $controllerArguments), $this->controllerName,
