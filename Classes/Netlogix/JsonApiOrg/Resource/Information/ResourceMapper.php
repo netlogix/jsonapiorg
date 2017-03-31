@@ -14,6 +14,7 @@ use Netlogix\JsonApiOrg\Schema;
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Http\Request;
 use TYPO3\Flow\Http\Response;
+use TYPO3\Flow\Http\Uri;
 use TYPO3\Flow\Mvc\ActionRequest;
 use TYPO3\Flow\Mvc\Controller\Arguments;
 use TYPO3\Flow\Mvc\Controller\ControllerContext;
@@ -52,6 +53,12 @@ class ResourceMapper
      * @Flow\Inject
      */
     protected $exposableTypeMap;
+
+    /**
+     * @var array
+     * @Flow\InjectConfiguration(package="TYPO3.Flow", path="http")
+     */
+    protected $flowHttpSettings;
 
     /**
      * @var array<\Netlogix\JsonApiOrg\Resource\Information\ResourceInformationInterface>
@@ -173,6 +180,9 @@ class ResourceMapper
 
         $request = new ActionRequest(Request::createFromEnvironment());
         $request->setDispatched(true);
+        if (isset($this->flowHttpSettings['baseUri'])) {
+            $request->getHttpRequest()->setBaseUri(new Uri($this->flowHttpSettings['baseUri']));
+        }
 
         $response = new Response();
 
