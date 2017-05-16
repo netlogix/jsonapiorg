@@ -9,9 +9,12 @@ namespace Netlogix\JsonApiOrg\Property\TypeConverter\Entity;
  * source code.
  */
 
+use Netlogix\JsonApiOrg\Domain\Model\ComplexAttribute;
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Property\Exception\FormatNotSupportedException;
+use TYPO3\Flow\Property\PropertyMappingConfiguration;
 use TYPO3\Flow\Property\PropertyMappingConfigurationInterface;
+use TYPO3\Flow\Utility\TypeHandling;
 
 /**
  */
@@ -79,7 +82,7 @@ class PersistentObjectConverter extends AbstractSchemaResourceBasedEntityConvert
      * @param mixed $source
      * @param string $targetType
      * @param array $convertedChildProperties
-     * @param PropertyMappingConfigurationInterface $configuration
+     * @param PropertyMappingConfigurationInterface|PropertyMappingConfiguration $configuration
      * @return mixed|\TYPO3\Flow\Error\Error the target type, or an error object if a user-error occurred
      * @throws \TYPO3\Flow\Property\Exception\TypeConverterException thrown in case a developer error occurred
      * @api
@@ -92,6 +95,16 @@ class PersistentObjectConverter extends AbstractSchemaResourceBasedEntityConvert
     ) {
         $arguments = [];
         if (array_key_exists('attributes', $source)) {
+            array_walk($source['attributes'], function($value, $attributeName) use ($targetType, $configuration) {
+                if (!is_array($value)) {
+                    return;
+                }
+                $targetType = TypeHandling::parseType($this->reflectionService->getPropertyTagValues($targetType, $attributeName, 'var')[0]);
+                if (is_a($targetType['type'], ComplexAttribute::class, true)) {
+                    $subConfiguration = $configuration->forProperty($attributeName);
+                    $subConfiguration->allowAllProperties();
+                }
+            });
             $arguments = array_merge($arguments, $source['attributes']);
         }
         if (array_key_exists('relationships', $source)) {
