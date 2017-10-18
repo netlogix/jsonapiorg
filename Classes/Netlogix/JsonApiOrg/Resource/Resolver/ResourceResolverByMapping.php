@@ -12,7 +12,7 @@ namespace Netlogix\JsonApiOrg\Resource\Resolver;
 
 use Netlogix\JsonApiOrg\Resource\RequestStack;
 use Netlogix\JsonApiOrg\Schema\Resource;
-use TYPO3\Flow\Annotations as Flow;
+use Neos\Flow\Annotations as Flow;
 
 /**
  * The ResourceResolver takes an incoming requestData data structure
@@ -27,13 +27,13 @@ class ResourceResolverByMapping implements ResourceResolverInterface
     protected $automaticRequestHeader = array();
 
     /**
-     * @var \TYPO3\Flow\Http\Client\InternalRequestEngine
+     * @var \Neos\Flow\Http\Client\InternalRequestEngine
      * @Flow\Inject
      */
     protected $requestEngine;
 
     /**
-     * @var \TYPO3\Flow\Property\PropertyMapper
+     * @var \Neos\Flow\Property\PropertyMapper
      * @Flow\Inject
      */
     protected $propertyMapper;
@@ -42,14 +42,14 @@ class ResourceResolverByMapping implements ResourceResolverInterface
      * @param array $requestData
      * @return array
      * @throws \Exception
-     * @throws \TYPO3\Flow\Property\Exception
-     * @throws \TYPO3\Flow\Security\Exception
+     * @throws \Neos\Flow\Property\Exception
+     * @throws \Neos\Flow\Security\Exception
      */
     public function resourceRequest(array $requestData)
     {
 
         /** @var Resource $resource */
-        $resource = $this->propertyMapper->convert($requestData[RequestStack::RESULT_DATA_IDENTIFIER], Resource::class);
+        $resource = $this->propertyMapper->convert($requestData[RequestStack::RESULT_DATA_IDENTIFIER], PersistentResource::class);
 
         if (!$resource) {
             throw new \Exception('This request data can not be processed', 1452854971);

@@ -11,13 +11,13 @@ namespace Netlogix\JsonApiOrg\Controller;
 
 use Netlogix\JsonApiOrg\Resource\Resolver\ResourceResolverBySubrequest;
 use Netlogix\JsonApiOrg\View\JsonView;
-use TYPO3\Flow\Annotations as Flow;
-use TYPO3\Flow\Mvc\Controller\RestController;
-use TYPO3\Flow\Mvc\View\ViewInterface;
-use TYPO3\Flow\Property\PropertyMapper;
-use TYPO3\Flow\Property\PropertyMappingConfiguration;
-use TYPO3\Flow\Property\TypeConverter\MediaTypeConverterInterface;
-use TYPO3\Flow\Utility\Arrays;
+use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Mvc\Controller\RestController;
+use Neos\Flow\Mvc\View\ViewInterface;
+use Neos\Flow\Property\PropertyMapper;
+use Neos\Flow\Property\PropertyMappingConfiguration;
+use Neos\Flow\Property\TypeConverter\MediaTypeConverterInterface;
+use Neos\Utility\Arrays;
 
 /**
  * An action controller dealing with jsonapi.org data structures.
@@ -71,7 +71,7 @@ abstract class ApiController extends RestController
      * Determines the action method and assures that the method exists.
      *
      * @return string The action method name
-     * @throws \TYPO3\Flow\Mvc\Exception\NoSuchActionException if the action specified in the request object does not exist (and if there's no default action either).
+     * @throws \Neos\Flow\Mvc\Exception\NoSuchActionException if the action specified in the request object does not exist (and if there's no default action either).
      */
     protected function resolveActionMethodName()
     {
@@ -117,7 +117,7 @@ abstract class ApiController extends RestController
      * The content of the root request is used as resource argument.
      *
      * @return void
-     * @throws \TYPO3\Flow\Mvc\Exception\InvalidArgumentTypeException
+     * @throws \Neos\Flow\Mvc\Exception\InvalidArgumentTypeException
      * @see initializeArguments()
      */
     protected function initializeActionMethodArguments()
@@ -144,7 +144,7 @@ abstract class ApiController extends RestController
      * jsonapi.org structure.
      *
      * @return mixed
-     * @throws \TYPO3\Flow\Http\Exception
+     * @throws \Neos\Flow\Http\Exception
      */
     protected function extractRequestBody()
     {
@@ -205,7 +205,7 @@ abstract class ApiController extends RestController
         $result = ['errors' => []];
 
         $pattern = '%^' . preg_quote($this->resourceArgumentName, '%') . '\\.?%';
-        /** @var \TYPO3\Flow\Error\Error $validationResult */
+        /** @var \Neos\Error\Messages\Error $validationResult */
         foreach ($validationResults as $key => $validationResult) {
             if (preg_match($pattern, $key)) {
                 $key = preg_replace($pattern, '', $key);
@@ -216,7 +216,7 @@ abstract class ApiController extends RestController
                 $source = ['parameter' => $key];
             }
 
-            /** @var \TYPO3\Flow\Validation\Error $error */
+            /** @var \Neos\Flow\Validation\Error $error */
             foreach ($validationResult as $error) {
                 $result['errors'][] = array(
                     'source' => $source,

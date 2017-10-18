@@ -9,8 +9,8 @@ namespace Netlogix\JsonApiOrg\Http\Request;
  * source code.
  */
 
-use TYPO3\Flow\Annotations as Flow;
-use TYPO3\Flow\Aop\JoinPointInterface;
+use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Aop\JoinPointInterface;
 
 /**
  * @Flow\Aspect
@@ -22,13 +22,13 @@ class SetFormatByAcceptHeaderAspect
     /**
      * Sets the request format according th the given accept header.
      *
-     * @Flow\After("method(TYPO3\Flow\Mvc\ActionRequest->setArguments())")
+     * @Flow\After("method(Neos\Flow\Mvc\ActionRequest->setArguments())")
      * @param JoinPointInterface $joinPoint The current joinpoint
      */
     public function setRequestFormatByAcceptHeader(JoinPointInterface $joinPoint)
     {
 
-        /** @var \TYPO3\Flow\Mvc\ActionRequest $actionRequest */
+        /** @var \Neos\Flow\Mvc\ActionRequest $actionRequest */
         $actionRequest = $joinPoint->getProxy();
 
         /**

@@ -13,7 +13,7 @@ use Doctrine\Common\Collections\Collection;
 use Netlogix\JsonApiOrg\Schema\Traits\IncludeFieldsTrait;
 use Netlogix\JsonApiOrg\Schema\Traits\ResourceBasedTrait;
 use Netlogix\JsonApiOrg\Schema\Traits\SparseFieldsTrait;
-use TYPO3\Flow\Annotations as Flow;
+use Neos\Flow\Annotations as Flow;
 
 /**
  * @see http://jsonapi.org/format/#document-resource-object-relationships

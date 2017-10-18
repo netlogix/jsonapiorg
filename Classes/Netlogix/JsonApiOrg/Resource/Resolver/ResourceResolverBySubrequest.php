@@ -11,8 +11,8 @@ namespace Netlogix\JsonApiOrg\Resource\Resolver;
 
 
 use Netlogix\JsonApiOrg\Resource\RequestStack;
-use TYPO3\Flow\Annotations as Flow;
-use TYPO3\Flow\Http\Client\Browser;
+use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Http\Client\Browser;
 
 /**
  * The ResourceResolver takes an incoming requestData data structure
@@ -24,7 +24,7 @@ class ResourceResolverBySubrequest extends Browser implements ResourceResolverIn
     const SUB_REQUEST_HEADER = 'X-Jsonapiorg-Subrequest';
 
     /**
-     * @var \TYPO3\Flow\Http\Client\RequestEngineInterface
+     * @var \Neos\Flow\Http\Client\RequestEngineInterface
      * @Flow\Inject
      * @TODO I'd love to have the InternalRequestEngine used here
      */
@@ -44,7 +44,7 @@ class ResourceResolverBySubrequest extends Browser implements ResourceResolverIn
      * @param array $requestData
      * @return array
      * @throws \Exception
-     * @throws \TYPO3\Flow\Http\Client\InfiniteRedirectionException
+     * @throws \Neos\Flow\Http\Client\InfiniteRedirectionException
      */
     public function resourceRequest(array $requestData)
     {
