@@ -9,15 +9,17 @@ namespace Netlogix\JsonApiOrg\Controller;
  * source code.
  */
 
-use Netlogix\JsonApiOrg\Resource\Resolver\ResourceResolverBySubrequest;
-use Netlogix\JsonApiOrg\View\JsonView;
 use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Mvc\ActionRequest;
 use Neos\Flow\Mvc\Controller\RestController;
 use Neos\Flow\Mvc\View\ViewInterface;
 use Neos\Flow\Property\PropertyMapper;
 use Neos\Flow\Property\PropertyMappingConfiguration;
 use Neos\Flow\Property\TypeConverter\MediaTypeConverterInterface;
 use Neos\Utility\Arrays;
+use Neos\Utility\ObjectAccess;
+use Netlogix\JsonApiOrg\Resource\Resolver\ResourceResolverBySubrequest;
+use Netlogix\JsonApiOrg\View\JsonView;
 
 /**
  * An action controller dealing with jsonapi.org data structures.
@@ -26,7 +28,6 @@ use Neos\Utility\Arrays;
  */
 abstract class ApiController extends RestController
 {
-
     /**
      * @var array
      */
@@ -75,9 +76,11 @@ abstract class ApiController extends RestController
      */
     protected function resolveActionMethodName()
     {
-        $this->request->__previousControllerActionName = $this->request->getControllerActionName();
+        $previousRequest = $this->request;
+        $this->request = clone $this->request;
+        ObjectAccess::setProperty($this->request, self::class, $previousRequest, true);
 
-        if ($this->request->__previousControllerActionName === 'index' && $this->request->getHttpRequest()->getHeader(ResourceResolverBySubrequest::SUB_REQUEST_HEADER) == 'true') {
+        if ($this->getOriginalRequest()->getControllerActionName() === 'index' && $this->request->getHttpRequest()->getHeader(ResourceResolverBySubrequest::SUB_REQUEST_HEADER) == 'true') {
             $this->request->setControllerActionName('showUnwrapped');
         }
 
@@ -122,7 +125,7 @@ abstract class ApiController extends RestController
      */
     protected function initializeActionMethodArguments()
     {
-        if ($this->request->__previousControllerActionName === 'index') {
+        if ($this->getOriginalRequest()->getControllerActionName() === 'index') {
             switch ($this->request->getHttpRequest()->getMethod()) {
                 case 'POST':
                 case 'PUT':
@@ -231,5 +234,12 @@ abstract class ApiController extends RestController
         return json_encode($result, JSON_PRETTY_PRINT);
     }
 
+    /**
+     * @return ActionRequest
+     */
+    protected function getOriginalRequest()
+    {
+        return ObjectAccess::getProperty($this->request, self::class, true);
+    }
 
 }
