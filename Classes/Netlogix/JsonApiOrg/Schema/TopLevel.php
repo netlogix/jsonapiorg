@@ -20,7 +20,7 @@ class TopLevel extends AbstractSchemaElement
     /**
      * @var \Netlogix\JsonApiOrg\Schema\Resource|array<\Netlogix\JsonApiOrg\Schema\Resource>
      */
-    protected $data = [];
+    protected $data;
 
     /**
      * @var array<Error>
@@ -83,6 +83,7 @@ class TopLevel extends AbstractSchemaElement
      */
     public function addData(Schema\Resource $resource)
     {
+        $this->data = (array)$this->data;
         $this->data[] = $resource;
     }
 

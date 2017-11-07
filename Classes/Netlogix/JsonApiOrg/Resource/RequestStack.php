@@ -51,6 +51,9 @@ class RequestStack
      */
     public function push($resource, $position = self::POSITION_DATA, $nestingPath = '')
     {
+        if (is_null($resource)) {
+            return;
+        }
         $hash = spl_object_hash($resource);
         if (array_key_exists($hash, $this->results)) {
             $this->results[$hash][self::RESULT_NESTING_PATHS][$nestingPath] = $nestingPath;
