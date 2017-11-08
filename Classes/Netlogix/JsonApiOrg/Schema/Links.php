@@ -30,7 +30,9 @@ class Links extends AbstractSchemaElement implements \ArrayAccess
             $links = $payload->buildLinks($this->getResourceInformation()->getUriBuilder());
         }
         if (empty($links['self'])) {
-            $links['self'] = (string)$this->getResourceInformation()->getPublicResourceUri($payload);
+            try {
+                $links['self'] = (string)$this->getResourceInformation()->getPublicResourceUri($payload);
+            } catch (\Exception $e) {}
         }
 
         return $links;
