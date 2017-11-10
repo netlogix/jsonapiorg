@@ -10,10 +10,10 @@ namespace Netlogix\JsonApiOrg\Schema;
  */
 
 use Doctrine\Common\Collections\Collection;
+use Neos\Flow\Annotations as Flow;
 use Netlogix\JsonApiOrg\Schema\Traits\IncludeFieldsTrait;
 use Netlogix\JsonApiOrg\Schema\Traits\ResourceBasedTrait;
 use Netlogix\JsonApiOrg\Schema\Traits\SparseFieldsTrait;
-use Neos\Flow\Annotations as Flow;
 
 /**
  * @see http://jsonapi.org/format/#document-resource-object-relationships
@@ -168,11 +168,16 @@ class Relationships extends AbstractSchemaElement implements \IteratorAggregate,
      */
     protected function getLinksPayloadForResource($fieldName)
     {
-        return array(
-            'self' => (string)$this->getResourceInformation()->getPublicRelationshipUri($this->getPayload(),
-                $fieldName),
-            'related' => (string)$this->getResourceInformation()->getPublicRelatedUri($this->getPayload(), $fieldName),
-        );
+        $result = [];
+        try {
+            $result['self'] = (string)$this->getResourceInformation()->getPublicRelationshipUri($this->getPayload(), $fieldName);
+        } catch (\Exception $e) {
+        }
+        try {
+            $result['related'] = (string)$this->getResourceInformation()->getPublicRelatedUri($this->getPayload(), $fieldName);
+        } catch (\Exception $e) {
+        }
+        return $result;
     }
 
     /**
