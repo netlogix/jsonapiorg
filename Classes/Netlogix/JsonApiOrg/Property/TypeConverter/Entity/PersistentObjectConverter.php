@@ -110,6 +110,7 @@ class PersistentObjectConverter extends AbstractSchemaResourceBasedEntityConvert
         if (array_key_exists('relationships', $source)) {
             $arguments = array_merge($arguments, $source['relationships']);
             foreach (array_keys($source['relationships']) as $relationshipName) {
+                $configuration->allowProperties($relationshipName);
                 $configuration->forProperty($relationshipName)->allowProperties('data');
                 $configuration->forProperty($relationshipName . '.data')->allowAllProperties();
             }
