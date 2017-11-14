@@ -96,6 +96,7 @@ class PersistentObjectConverter extends AbstractSchemaResourceBasedEntityConvert
         $arguments = [];
         if (array_key_exists('attributes', $source)) {
             array_walk($source['attributes'], function($value, $attributeName) use ($targetType, $configuration) {
+                $configuration->allowProperties($attributeName);
                 if (!is_array($value)) {
                     return;
                 }
