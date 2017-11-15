@@ -132,7 +132,7 @@ class Relationships extends AbstractSchemaElement implements \IteratorAggregate,
      */
     protected function getResourceCollectionRelationshipValue($fieldName)
     {
-        $result = array_merge($this->getBasicResourceRelationshipValue($fieldName), array('data' => array()));
+        $result = array_merge($this->getBasicResourceRelationshipValue($fieldName, Relationships::RELATIONSHIP_TYPE_COLLECTION), array('data' => array()));
 
         foreach ($this->getResource()->getPayloadProperty($fieldName) as $relationship) {
             if (!is_null($relationship)) {
