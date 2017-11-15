@@ -33,6 +33,11 @@ class TopLevel extends AbstractSchemaElement
     protected $meta;
 
     /**
+     * @var \Netlogix\JsonApiOrg\Schema\Links
+     */
+    protected $links;
+
+    /**
      * @var \Netlogix\JsonApiOrg\Schema\JsonApi
      */
     protected $jsonapi;
@@ -53,6 +58,8 @@ class TopLevel extends AbstractSchemaElement
     public function __construct()
     {
         $this->jsonapi = new JsonApi();
+        $this->meta = new Meta();
+        $this->links = new Links();
     }
 
     public function jsonSerialize()
@@ -60,7 +67,7 @@ class TopLevel extends AbstractSchemaElement
         $result = array(
             'data' => $this->data,
         );
-        foreach (array('errors', 'meta', 'included', 'jsonapi') as $optionalField) {
+        foreach (array('errors', 'meta', 'links', 'included', 'jsonapi') as $optionalField) {
             $optionalValue = json_decode(json_encode($this->{$optionalField}), true);
             if ($optionalValue) {
                 $result[$optionalField] = $optionalValue;
@@ -103,4 +110,13 @@ class TopLevel extends AbstractSchemaElement
         $this->included[] = $include;
     }
 
+    public function getMeta()
+    {
+        return $this->meta;
+    }
+
+    public function getLinks()
+    {
+        return $this->links;
+    }
 }

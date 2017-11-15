@@ -18,7 +18,6 @@ use Netlogix\JsonApiOrg\Schema;
  */
 trait ResourceBasedTrait
 {
-
     /**
      * @var Schema\Resource
      */
@@ -29,7 +28,7 @@ trait ResourceBasedTrait
      *
      * @param Schema\Resource $resource
      */
-    public function __construct(Schema\Resource $resource)
+    public function __construct(Schema\Resource $resource = null)
     {
         $this->resource = $resource;
     }
@@ -47,7 +46,7 @@ trait ResourceBasedTrait
      */
     protected function getResourceInformation()
     {
-        return $this->resource->getResourceInformation();
+        return $this->resource ? $this->resource->getResourceInformation() : null;
     }
 
     /**
@@ -55,7 +54,7 @@ trait ResourceBasedTrait
      */
     protected function getPayload()
     {
-        return $this->resource->getPayload();
+        return $this->resource ? $this->resource->getPayload() : null;
     }
 
     /**
@@ -72,7 +71,7 @@ trait ResourceBasedTrait
      */
     protected function getAttributesToBeApiExposed()
     {
-        return $this->resource->getAttributesToBeApiExposed();
+        return $this->resource ? $this->resource->getAttributesToBeApiExposed() : [];
     }
 
     /**
@@ -96,7 +95,7 @@ trait ResourceBasedTrait
      */
     protected function getRelationshipsToBeApiExposed()
     {
-        return $this->resource->getRelationshipsToBeApiExposed();
+        return $this->resource ? $this->resource->getRelationshipsToBeApiExposed() : [];
     }
 
 }
