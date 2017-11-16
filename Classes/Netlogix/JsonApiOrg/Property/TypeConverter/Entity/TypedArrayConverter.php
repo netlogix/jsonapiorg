@@ -89,7 +89,11 @@ class TypedArrayConverter extends AbstractSchemaResourceBasedEntityConverter
      */
     public function getTypeOfChildProperty($targetType, $propertyName, PropertyMappingConfigurationInterface $configuration)
     {
-        return $this->typedArrayConverter->getSourceChildPropertiesToBeConverted($targetType, $propertyName, $configuration);
+        if ($propertyName === 'data') {
+            return $targetType;
+        }
+
+        return $this->typedArrayConverter->getTypeOfChildProperty($targetType, $propertyName, $configuration);
     }
 
 }
