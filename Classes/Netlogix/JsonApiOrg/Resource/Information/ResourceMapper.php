@@ -152,7 +152,7 @@ class ResourceMapper
         }
         $resourceConverter = new ResourceConverter();
         /** @var Schema\Resource $resource */
-        $resource = $resourceConverter->convertFrom($dataIdentifier, Schema\PersistentResource::class);
+        $resource = $resourceConverter->convertFrom($dataIdentifier, Schema\Resource::class);
 
         return $resource->getPayload();
     }

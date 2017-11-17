@@ -49,7 +49,7 @@ class ResourceResolverByMapping implements ResourceResolverInterface
     {
 
         /** @var Resource $resource */
-        $resource = $this->propertyMapper->convert($requestData[RequestStack::RESULT_DATA_IDENTIFIER], PersistentResource::class);
+        $resource = $this->propertyMapper->convert($requestData[RequestStack::RESULT_DATA_IDENTIFIER], Resource::class);
 
         if (!$resource) {
             throw new \Exception('This request data can not be processed', 1452854971);
