@@ -5,7 +5,7 @@ namespace Netlogix\JsonApiOrg\Domain\Model;
  * This file is part of the Netlogix.JsonApiOrg package.
  */
 
-use TYPO3\Flow\Mvc\Routing\UriBuilder;
+use Neos\Flow\Mvc\Routing\UriBuilder;
 
 interface LinksAwareModelInterface
 {

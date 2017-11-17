@@ -14,7 +14,7 @@ namespace Netlogix\JsonApiOrg\View;
  * That's basically the only thing this view does, apart from
  * calling json_encode on all schema elements.
  */
-class JsonView extends \TYPO3\Flow\Mvc\View\JsonView
+class JsonView extends \Neos\Flow\Mvc\View\JsonView
 {
 
     /**

@@ -9,7 +9,7 @@ namespace Netlogix\JsonApiOrg\Schema\Traits;
  * source code.
  */
 
-use TYPO3\Flow\Utility\Arrays;
+use Neos\Utility\Arrays;
 
 /**
  * Include fields means naming individual relationship paths hand

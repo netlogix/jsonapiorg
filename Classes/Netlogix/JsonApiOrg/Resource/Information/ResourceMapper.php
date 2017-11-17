@@ -11,15 +11,15 @@ namespace Netlogix\JsonApiOrg\Resource\Information;
 
 use Netlogix\JsonApiOrg\Property\TypeConverter\SchemaResource\ResourceConverter;
 use Netlogix\JsonApiOrg\Schema;
-use TYPO3\Flow\Annotations as Flow;
-use TYPO3\Flow\Http\Request;
-use TYPO3\Flow\Http\Response;
-use TYPO3\Flow\Http\Uri;
-use TYPO3\Flow\Mvc\ActionRequest;
-use TYPO3\Flow\Mvc\Controller\Arguments;
-use TYPO3\Flow\Mvc\Controller\ControllerContext;
-use TYPO3\Flow\Mvc\Routing\UriBuilder;
-use TYPO3\Flow\Utility\TypeHandling;
+use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Http\Request;
+use Neos\Flow\Http\Response;
+use Neos\Flow\Http\Uri;
+use Neos\Flow\Mvc\ActionRequest;
+use Neos\Flow\Mvc\Controller\Arguments;
+use Neos\Flow\Mvc\Controller\ControllerContext;
+use Neos\Flow\Mvc\Routing\UriBuilder;
+use Neos\Utility\TypeHandling;
 
 /**
  * The resource mapper converts any internal payload to
@@ -31,19 +31,19 @@ class ResourceMapper
 {
 
     /**
-     * @var \TYPO3\Flow\Object\ObjectManagerInterface
+     * @var \Neos\Flow\ObjectManagement\ObjectManagerInterface
      * @Flow\Inject
      */
     protected $objectManager;
 
     /**
-     * @var \TYPO3\Flow\Reflection\ReflectionService
+     * @var \Neos\Flow\Reflection\ReflectionService
      * @Flow\Inject
      */
     protected $reflectionService;
 
     /**
-     * @var \TYPO3\Flow\Property\PropertyMapper
+     * @var \Neos\Flow\Property\PropertyMapper
      * @Flow\Inject
      */
     protected $propertyMapper;
@@ -56,7 +56,7 @@ class ResourceMapper
 
     /**
      * @var array
-     * @Flow\InjectConfiguration(package="TYPO3.Flow", path="http")
+     * @Flow\InjectConfiguration(package="Neos.Flow", path="http")
      */
     protected $flowHttpSettings;
 
@@ -159,7 +159,7 @@ class ResourceMapper
 
     /**
      * @param mixed $payload
-     * @return \TYPO3\Flow\Http\Uri
+     * @return \Neos\Flow\Http\Uri
      * @see ResourceInformationInterface::getPublicResourceUri()
      */
     public function getPublicResourceUri($payload)

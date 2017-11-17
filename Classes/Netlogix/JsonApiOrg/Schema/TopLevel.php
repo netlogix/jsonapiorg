@@ -20,7 +20,7 @@ class TopLevel extends AbstractSchemaElement
     /**
      * @var \Netlogix\JsonApiOrg\Schema\Resource|array<\Netlogix\JsonApiOrg\Schema\Resource>
      */
-    protected $data = [];
+    protected $data;
 
     /**
      * @var array<Error>
@@ -31,6 +31,11 @@ class TopLevel extends AbstractSchemaElement
      * @var \Netlogix\JsonApiOrg\Schema\Meta
      */
     protected $meta;
+
+    /**
+     * @var \Netlogix\JsonApiOrg\Schema\Links
+     */
+    protected $links;
 
     /**
      * @var \Netlogix\JsonApiOrg\Schema\JsonApi
@@ -53,6 +58,8 @@ class TopLevel extends AbstractSchemaElement
     public function __construct()
     {
         $this->jsonapi = new JsonApi();
+        $this->meta = new Meta();
+        $this->links = new Links();
     }
 
     public function jsonSerialize()
@@ -60,7 +67,7 @@ class TopLevel extends AbstractSchemaElement
         $result = array(
             'data' => $this->data,
         );
-        foreach (array('errors', 'meta', 'included', 'jsonapi') as $optionalField) {
+        foreach (array('errors', 'meta', 'links', 'included', 'jsonapi') as $optionalField) {
             $optionalValue = json_decode(json_encode($this->{$optionalField}), true);
             if ($optionalValue) {
                 $result[$optionalField] = $optionalValue;
@@ -83,6 +90,7 @@ class TopLevel extends AbstractSchemaElement
      */
     public function addData(Schema\Resource $resource)
     {
+        $this->data = (array)$this->data;
         $this->data[] = $resource;
     }
 
@@ -102,4 +110,13 @@ class TopLevel extends AbstractSchemaElement
         $this->included[] = $include;
     }
 
+    public function getMeta()
+    {
+        return $this->meta;
+    }
+
+    public function getLinks()
+    {
+        return $this->links;
+    }
 }

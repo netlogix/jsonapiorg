@@ -9,8 +9,8 @@ namespace Netlogix\JsonApiOrg\Resource\Information;
  * source code.
  */
 
-use TYPO3\Flow\Annotations as Flow;
-use TYPO3\Flow\Property\Exception\FormatNotSupportedException;
+use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Property\Exception\FormatNotSupportedException;
 
 /**
  * This class holds information about:
@@ -33,9 +33,9 @@ class ExposableTypeMap implements ExposableTypeMapInterface
      * Example:
      *
      *   array(
-     *     'TYPO3\TYPO3CR\Domain\Model\Node::unstructured' => 'unstructured',
-     *     'TYPO3\TYPO3CR\Domain\Model\Node::TYPO3.Neos:Content' => 'content-node',
-     *     'TYPO3\TYPO3CR\Domain\Model\Node::TYPO3.Neos:ContentCollection' => 'collection-node',
+     *     'Neos\ContentRepository\Domain\Model\Node::unstructured' => 'unstructured',
+     *     'Neos\ContentRepository\Domain\Model\Node::Neos.Neos:Content' => 'content-node',
+     *     'Neos\ContentRepository\Domain\Model\Node::Neos.Neos:ContentCollection' => 'collection-node',
      *   );
      *
      * @var array<string>
@@ -48,9 +48,9 @@ class ExposableTypeMap implements ExposableTypeMapInterface
      * Example:
      *
      *   array(
-     *     'unstructured' => 'TYPO3\TYPO3CR\Domain\Model\Node'
-     *     'content-node' => 'TYPO3\TYPO3CR\Domain\Model\Node'
-     *     'collection-node' => 'TYPO3\TYPO3CR\Domain\Model\Node'
+     *     'unstructured' => 'Neos\ContentRepository\Domain\Model\Node'
+     *     'content-node' => 'Neos\ContentRepository\Domain\Model\Node'
+     *     'collection-node' => 'Neos\ContentRepository\Domain\Model\Node'
      *   );
      *
      * @var array<string>

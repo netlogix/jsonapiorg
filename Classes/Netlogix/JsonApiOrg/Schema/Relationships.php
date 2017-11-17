@@ -9,11 +9,17 @@ namespace Netlogix\JsonApiOrg\Schema;
  * source code.
  */
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Neos\Flow\Annotations as Flow;
+use Neos\Utility\ObjectAccess;
+use Netlogix\JsonApiOrg\Domain\Model\RelatedLinksAwareModelInterface;
+use Netlogix\JsonApiOrg\Domain\Model\RelatedLinksAwareResourceInterface;
+use Netlogix\JsonApiOrg\Resource\Information\LinksAwareResourceInformationInterface;
+use Netlogix\JsonApiOrg\Resource\Information\MetaAwareResourceInformationInterface;
 use Netlogix\JsonApiOrg\Schema\Traits\IncludeFieldsTrait;
 use Netlogix\JsonApiOrg\Schema\Traits\ResourceBasedTrait;
 use Netlogix\JsonApiOrg\Schema\Traits\SparseFieldsTrait;
-use TYPO3\Flow\Annotations as Flow;
 
 /**
  * @see http://jsonapi.org/format/#document-resource-object-relationships
@@ -52,7 +58,7 @@ class Relationships extends AbstractSchemaElement implements \IteratorAggregate,
             }
 
             if (!$this->isAllowedIncludeField($fieldName)) {
-                $this->jsonSerializeCache[$identifier][$fieldName] = $this->getBasicResourceRelationshipValue($fieldName);
+                $this->jsonSerializeCache[$identifier][$fieldName] = $this->getBasicResourceRelationshipValue($fieldName, $relationshipType);
 
             } elseif ($relationshipType === Relationships::RELATIONSHIP_TYPE_SINGLE) {
                 $this->jsonSerializeCache[$identifier][$fieldName] = $this->getResourceSingleRelationshipValue($fieldName);
@@ -76,13 +82,15 @@ class Relationships extends AbstractSchemaElement implements \IteratorAggregate,
 
     /**
      * @param string $fieldName
+     * @param string $relationshipType
      * @return array
      */
-    protected function getBasicResourceRelationshipValue($fieldName)
+    protected function getBasicResourceRelationshipValue($fieldName, $relationshipType)
     {
-        return array(
-            'links' => $this->getLinksPayloadForResource($fieldName),
-        );
+        return array_filter([
+            'links' => $this->getLinksPayloadForResource($fieldName, $relationshipType),
+            'meta' => $this->getMetaPayloadForResource($fieldName, $relationshipType),
+        ]);
     }
 
     /**
@@ -91,7 +99,7 @@ class Relationships extends AbstractSchemaElement implements \IteratorAggregate,
      */
     protected function getResourceSingleRelationshipValue($fieldName)
     {
-        $result = array_merge($this->getBasicResourceRelationshipValue($fieldName), array('data' => null));
+        $result = array_merge($this->getBasicResourceRelationshipValue($fieldName, Relationships::RELATIONSHIP_TYPE_SINGLE), array('data' => null));
 
         $relationship = $this->getResource()->getPayloadProperty($fieldName);
         if (!is_null($relationship)) {
@@ -124,7 +132,7 @@ class Relationships extends AbstractSchemaElement implements \IteratorAggregate,
      */
     protected function getResourceCollectionRelationshipValue($fieldName)
     {
-        $result = array_merge($this->getBasicResourceRelationshipValue($fieldName), array('data' => array()));
+        $result = array_merge($this->getBasicResourceRelationshipValue($fieldName, Relationships::RELATIONSHIP_TYPE_COLLECTION), array('data' => array()));
 
         foreach ($this->getResource()->getPayloadProperty($fieldName) as $relationship) {
             if (!is_null($relationship)) {
@@ -154,25 +162,57 @@ class Relationships extends AbstractSchemaElement implements \IteratorAggregate,
 
         $existingCollection = $this->getResource()->getPayloadProperty($fieldName);
         if (is_object($existingCollection) && $existingCollection instanceof Collection) {
-            $this->getResource()->setPayloadProperty($fieldName, new \Doctrine\Common\Collections\ArrayCollection($collection));
+            $this->getResource()->setPayloadProperty($fieldName, new ArrayCollection($collection));
         } else {
             $this->getResource()->setPayloadProperty($fieldName, $collection);
         }
 
     }
 
-    /**
-     * @param string $fieldName
-     *
-     * @return array
-     */
-    protected function getLinksPayloadForResource($fieldName)
+
+    protected function getLinksPayloadForResource($fieldName, $relationshipType)
     {
-        return array(
-            'self' => (string)$this->getResourceInformation()->getPublicRelationshipUri($this->getPayload(),
-                $fieldName),
-            'related' => (string)$this->getResourceInformation()->getPublicRelatedUri($this->getPayload(), $fieldName),
-        );
+        $result = [];
+
+        $payload = $this->getPayload();
+        $resourceInformation = $this->getResourceInformation();
+
+        if ($resourceInformation instanceof LinksAwareResourceInformationInterface) {
+            foreach ($resourceInformation->getLinksForRelationship($payload, $fieldName, $relationshipType) as $key => $value) {
+                $result[$key] = $value;
+            }
+        }
+
+        if (!array_key_exists('self', $result)) {
+            try {
+                $result['self'] = (string)$this->getResourceInformation()->getPublicRelationshipUri($payload, $fieldName);
+            } catch (\Exception $e) {
+            }
+        }
+        if (!array_key_exists('related', $result)) {
+            try {
+                $result['related'] = (string)$this->getResourceInformation()->getPublicRelatedUri($payload, $fieldName);
+            } catch (\Exception $e) {
+            }
+        }
+
+        return array_filter($result);
+    }
+
+    protected function getMetaPayloadForResource($fieldName, $relationshipType)
+    {
+        $result = [];
+
+        $payload = $this->getPayload();
+        $resourceInformation = $this->getResourceInformation();
+
+        if ($resourceInformation instanceof MetaAwareResourceInformationInterface) {
+            foreach ($resourceInformation->getMetaForRelationship($payload, $fieldName, $relationshipType) as $key => $value) {
+                $result[$key] = $value;
+            }
+        }
+
+        return array_filter($result);
     }
 
     /**

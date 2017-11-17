@@ -10,7 +10,7 @@ namespace Netlogix\JsonApiOrg\Resource;
  */
 
 use Netlogix\JsonApiOrg\Schema;
-use TYPO3\Flow\Annotations as Flow;
+use Neos\Flow\Annotations as Flow;
 
 /**
  * Just a simple stack that knows about current, future and past
@@ -33,7 +33,7 @@ class RequestStack
     protected $results = [];
 
     /**
-     * @var \TYPO3\Flow\Property\PropertyMapper
+     * @var \Neos\Flow\Property\PropertyMapper
      * @Flow\Inject
      */
     protected $propertyMapper;
@@ -51,6 +51,9 @@ class RequestStack
      */
     public function push($resource, $position = self::POSITION_DATA, $nestingPath = '')
     {
+        if (is_null($resource)) {
+            return;
+        }
         $hash = spl_object_hash($resource);
         if (array_key_exists($hash, $this->results)) {
             $this->results[$hash][self::RESULT_NESTING_PATHS][$nestingPath] = $nestingPath;

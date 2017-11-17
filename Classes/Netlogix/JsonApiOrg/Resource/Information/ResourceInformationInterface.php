@@ -52,7 +52,7 @@ interface ResourceInformationInterface
      * objects.
      *
      * @param mixed $resource
-     * @return \TYPO3\Flow\Http\Uri
+     * @return \Neos\Flow\Http\Uri
      */
     public function getPublicResourceUri($resource);
 
@@ -63,7 +63,7 @@ interface ResourceInformationInterface
      *
      * @param mixed $payload
      * @param string $relationshipName
-     * @return \TYPO3\Flow\Http\Uri
+     * @return \Neos\Flow\Http\Uri
      */
     public function getPublicRelatedUri($payload, $relationshipName);
 

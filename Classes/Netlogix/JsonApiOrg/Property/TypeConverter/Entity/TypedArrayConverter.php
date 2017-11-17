@@ -9,8 +9,8 @@ namespace Netlogix\JsonApiOrg\Property\TypeConverter\Entity;
  * source code.
  */
 
-use TYPO3\Flow\Annotations as Flow;
-use TYPO3\Flow\Property\PropertyMappingConfigurationInterface;
+use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Property\PropertyMappingConfigurationInterface;
 
 /**
  */
@@ -33,13 +33,13 @@ class TypedArrayConverter extends AbstractSchemaResourceBasedEntityConverter
     protected $targetType = 'array';
 
     /**
-     * @var \TYPO3\Flow\Property\TypeConverter\TypedArrayConverter
+     * @var \Neos\Flow\Property\TypeConverter\TypedArrayConverter
      */
     protected $typedArrayConverter;
 
     public function __construct()
     {
-        $this->typedArrayConverter = new \TYPO3\Flow\Property\TypeConverter\TypedArrayConverter();
+        $this->typedArrayConverter = new \Neos\Flow\Property\TypeConverter\TypedArrayConverter();
     }
 
     /**
@@ -89,7 +89,11 @@ class TypedArrayConverter extends AbstractSchemaResourceBasedEntityConverter
      */
     public function getTypeOfChildProperty($targetType, $propertyName, PropertyMappingConfigurationInterface $configuration)
     {
-        return $this->typedArrayConverter->getSourceChildPropertiesToBeConverted($targetType, $propertyName, $configuration);
+        if ($propertyName === 'data') {
+            return $targetType;
+        }
+
+        return $this->typedArrayConverter->getTypeOfChildProperty($targetType, $propertyName, $configuration);
     }
 
 }

@@ -18,7 +18,7 @@ Netlogix\JsonApiOrg\Resource\Resolver\ResourceResolverInterface:
 Netlogix\JsonApiOrg\Resource\Resolver\ResourceResolverBySubrequest:
   properties:
     requestEngine:
-      object: TYPO3\Flow\Http\Client\CurlEngine
+      object: Neos\Flow\Http\Client\CurlEngine
 
 
 #                                                                        #
@@ -32,16 +32,16 @@ Netlogix\JsonApiOrg\Resource\Resolver\ResourceResolverBySubrequest:
 #
 #    oneToOneTypeToClassMap:
 #      value:
-#        'TYPO3\Flow\Security\Account': 'account'
+#        'Neos\Flow\Security\Account': 'account'
 #
 #    classIdentifierToTypeNameMap:
 #      value:
-#        'TYPO3\TYPO3CR\Domain\Model\Node::unstructured': 'unstructured'
-#        'TYPO3\TYPO3CR\Domain\Model\Node::TYPO3.Neos:Content': 'content-node'
-#        'TYPO3\TYPO3CR\Domain\Model\Node::TYPO3.Neos:ContentCollection': 'collection-node'
+#        'Neos\ContentRepository\Domain\Model\Node::unstructured': 'unstructured'
+#        'Neos\ContentRepository\Domain\Model\Node::Neos.Neos:Content': 'content-node'
+#        'Neos\ContentRepository\Domain\Model\Node::Neos.Neos:ContentCollection': 'collection-node'
 #
 #    typeNameToClassIdentifierMap:
 #      value:
-#        'unstructured': 'TYPO3\TYPO3CR\Domain\Model\Node'
-#        'content-node': 'TYPO3\TYPO3CR\Domain\Model\Node'
-#        'collection-node': 'TYPO3\TYPO3CR\Domain\Model\Node'
+#        'unstructured': 'Neos\ContentRepository\Domain\Model\Node'
+#        'content-node': 'Neos\ContentRepository\Domain\Model\Node'
+#        'collection-node': 'Neos\ContentRepository\Domain\Model\Node'
