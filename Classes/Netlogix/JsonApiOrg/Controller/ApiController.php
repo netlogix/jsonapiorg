@@ -228,7 +228,10 @@ abstract class ApiController extends RestController
                 );
             }
         }
-        $this->response->setStatus(400);
+
+        list($status, $result) = $this->mapErrorResult(400, $result);
+
+        $this->response->setStatus($status);
         $this->response->setHeader('Content-Type', current($this->supportedMediaTypes));
 
         return json_encode($result, JSON_PRETTY_PRINT);
@@ -240,6 +243,18 @@ abstract class ApiController extends RestController
     protected function getOriginalRequest()
     {
         return ObjectAccess::getProperty($this->request, self::class, true);
+    }
+
+    protected function mapErrorResult($status, $result)
+    {
+        array_walk($result['errors'], function(&$error) use (&$status) {
+            if (ObjectAccess::getPropertyPath($error, 'source.pointer') === '/data' && $error['code'] === 1221560910) {
+                $error['code'] = 404;
+                $error['title'] = 'Object not found.';
+                $status = 404;
+            }
+        });
+        return [$status, $result];
     }
 
 }
