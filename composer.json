@@ -1,18 +1,23 @@
 {
     "name": "netlogix/jsonapiorg",
     "type": "neos-package",
-    "homepage": "http://www.netlogix.de",
-    "license": [
-        "MIT"
-    ],
+    "homepage": "http://websolutions.netlogix.de/",
+    "license": ["MIT"],
     "require": {
-        "neos/flow": "~4.0.0"
+        "neos/flow": "*"
     },
-    "suggest": [],
     "autoload": {
         "psr-0": {
             "Netlogix\\JsonApiOrg": "Classes"
         }
+    },
+    "autoload-dev": {
+        "psr-0": {
+            "Netlogix\\JsonApiOrg\\Tests": "Tests"
+        }
+    },
+    "replace": {
+        "netlogix/jsonapiorg": "self.version"
     },
     "extra": {
         "applied-flow-migrations": [
