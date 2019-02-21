@@ -78,7 +78,7 @@ class RelationshipIterator
 
         $this->traverseRelationships();
 
-        return $this->createResult();
+        return $this->createResult(!$this->isArray($resource));
     }
 
     /**
@@ -95,7 +95,7 @@ class RelationshipIterator
     protected function initializeStack($resource)
     {
         $this->stack = new RequestStack();
-        if (is_array($resource) || (is_object($resource) && $resource instanceof Collection) || (is_object($resource) && $resource instanceof QueryResultInterface)) {
+        if ($this->isArray($resource)) {
             foreach ($resource as $singleResource) {
                 $this->stack->push($singleResource, RequestStack::POSITION_DATACOLLECTION);
             }
@@ -115,12 +115,13 @@ class RelationshipIterator
     }
 
     /**
+     * @param bool $singleResource
      * @return TopLevel
      */
-    protected function createResult()
+    protected function createResult($singleResource)
     {
 
-        $result = new TopLevel();
+        $result = new TopLevel($singleResource);
 
         foreach ($this->stack->getResults() as $resourceWorkloadPackage) {
             if ($resourceWorkloadPackage[RequestStack::RESULT_DATA]) {
@@ -303,6 +304,15 @@ class RelationshipIterator
     public function getFields()
     {
         return $this->fields;
+    }
+
+    /**
+     * @param mixed $resource
+     * @return bool
+     */
+    private function isArray($resource)
+    {
+        return is_array($resource) || (is_object($resource) && $resource instanceof Collection) || (is_object($resource) && $resource instanceof QueryResultInterface);
     }
 
 }

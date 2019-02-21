@@ -53,10 +53,11 @@ class TopLevel extends AbstractSchemaElement
     protected $self;
 
     /**
-     * TopLevel constructor.
+     * @param bool $singleResource
      */
-    public function __construct()
+    public function __construct($singleResource = true)
     {
+        $this->data = $singleResource ? null : [];
         $this->jsonapi = new JsonApi();
         $this->meta = new Meta();
         $this->links = new Links();
