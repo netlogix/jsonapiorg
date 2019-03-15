@@ -9,8 +9,8 @@ namespace Netlogix\JsonApiOrg\Property\TypeConverter\Entity;
  * source code.
  */
 
-use Neos\Flow\Annotations as Flow;
-use Neos\Flow\Property\TypeConverter\PersistentObjectConverter;
+use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Property\TypeConverter\PersistentObjectConverter;
 
 /**
  */
@@ -18,7 +18,7 @@ abstract class AbstractSchemaResourceBasedEntityConverter extends PersistentObje
 {
 
     /**
-     * @var \Neos\Flow\Property\PropertyMapper
+     * @var \TYPO3\Flow\Property\PropertyMapper
      * @Flow\Inject
      */
     protected $propertyMapper;

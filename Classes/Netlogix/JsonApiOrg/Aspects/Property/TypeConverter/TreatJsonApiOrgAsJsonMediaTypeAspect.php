@@ -9,8 +9,8 @@ namespace Netlogix\JsonApiOrg\Aspects\Property\TypeConverter;
  * source code.
  */
 
-use Neos\Flow\Annotations as Flow;
-use Neos\Flow\Aop\JoinPointInterface;
+use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Aop\JoinPointInterface;
 
 /**
  * Since the default MediaTypeConverter does not recognize the media type
@@ -24,7 +24,7 @@ class TreatJsonApiOrgAsJsonMediaTypeAspect
 {
 
     /**
-     * @Flow\Around("within(Neos\Flow\Property\TypeConverter\MediaTypeConverterInterface) && method(.*->convertMediaType())")
+     * @Flow\Around("within(TYPO3\Flow\Property\TypeConverter\MediaTypeConverterInterface) && method(.*->convertMediaType())")
      * @param JoinPointInterface $joinPoint The current joinpoint
      * @return mixed
      */

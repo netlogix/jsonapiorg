@@ -9,7 +9,7 @@ namespace Netlogix\JsonApiOrg\Schema;
  * source code.
  */
 
-use Neos\Flow\Annotations as Flow;
+use TYPO3\Flow\Annotations as Flow;
 
 /**
  * Having an abstract schema element in place is not a feature by

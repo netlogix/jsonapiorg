@@ -10,7 +10,7 @@ namespace Netlogix\JsonApiOrg\Resource;
  */
 
 use Netlogix\JsonApiOrg\Schema;
-use Neos\Flow\Annotations as Flow;
+use TYPO3\Flow\Annotations as Flow;
 
 /**
  * Just a simple stack that knows about current, future and past
@@ -33,7 +33,7 @@ class RequestStack
     protected $results = [];
 
     /**
-     * @var \Neos\Flow\Property\PropertyMapper
+     * @var \TYPO3\Flow\Property\PropertyMapper
      * @Flow\Inject
      */
     protected $propertyMapper;

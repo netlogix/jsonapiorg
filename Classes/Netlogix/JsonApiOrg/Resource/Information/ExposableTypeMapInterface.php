@@ -9,8 +9,8 @@ namespace Netlogix\JsonApiOrg\Resource\Information;
  * source code.
  */
 
-use Neos\Flow\Annotations as Flow;
-use Neos\Flow\Property\Exception\FormatNotSupportedException;
+use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Property\Exception\FormatNotSupportedException;
 
 /**
  * This class holds information about:

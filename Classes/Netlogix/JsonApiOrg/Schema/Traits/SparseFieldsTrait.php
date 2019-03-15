@@ -8,7 +8,7 @@ namespace Netlogix\JsonApiOrg\Schema\Traits;
  * information, please view the LICENSE file which was distributed with this
  * source code.
  */
-use Neos\Utility\Arrays;
+use TYPO3\Flow\Utility\Arrays;
 
 /**
  * Sparse fields are optional resource fields thant can be either

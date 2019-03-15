@@ -11,8 +11,10 @@ namespace Netlogix\JsonApiOrg\Domain\Dto;
 
 use Netlogix\JsonApiOrg\Schema\Resource;
 use Netlogix\JsonApiOrg\Schema\ResourceInterface;
-use Neos\Flow\Annotations as Flow;
-use Neos\Utility\TypeHandling;
+use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Reflection\Exception\PropertyNotAccessibleException;
+use TYPO3\Flow\Reflection\ObjectAccess;
+use TYPO3\Flow\Utility\TypeHandling;
 
 /**
  * A default/template implementation of a custom resource.
@@ -23,7 +25,7 @@ abstract class AbstractResource extends Resource implements ResourceInterface
 {
 
     /**
-     * @var \Neos\Flow\Persistence\PersistenceManagerInterface
+     * @var \TYPO3\Flow\Persistence\PersistenceManagerInterface
      * @Flow\Inject
      */
     protected $persistenceManager;
@@ -123,11 +125,11 @@ abstract class AbstractResource extends Resource implements ResourceInterface
     /**
      * @param string $propertyName
      * @return mixed
-     * @throws \Neos\Utility\Exception\PropertyNotAccessibleException
+     * @throws PropertyNotAccessibleException
      */
     public function getPayloadProperty($propertyName)
     {
-        return \Neos\Utility\ObjectAccess::getProperty($this->getPayload(), $propertyName);
+        return ObjectAccess::getProperty($this->getPayload(), $propertyName);
     }
 
     /**
@@ -137,7 +139,7 @@ abstract class AbstractResource extends Resource implements ResourceInterface
     public function setPayloadProperty($propertyName, $value)
     {
         $payload = $this->getPayload();
-        \Neos\Utility\ObjectAccess::setProperty($payload, $propertyName, $value);
+        ObjectAccess::setProperty($payload, $propertyName, $value);
     }
 
 }

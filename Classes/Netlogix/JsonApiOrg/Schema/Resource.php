@@ -10,7 +10,7 @@ namespace Netlogix\JsonApiOrg\Schema;
  */
 
 use Netlogix\JsonApiOrg\Resource\Information\ResourceInformationInterface;
-use Neos\Flow\Annotations as Flow;
+use TYPO3\Flow\Annotations as Flow;
 
 /**
  * @see http://jsonapi.org/format/#document-resource-objects

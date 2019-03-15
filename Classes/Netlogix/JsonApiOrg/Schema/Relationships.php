@@ -11,10 +11,7 @@ namespace Netlogix\JsonApiOrg\Schema;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Neos\Flow\Annotations as Flow;
-use Neos\Utility\ObjectAccess;
-use Netlogix\JsonApiOrg\Domain\Model\RelatedLinksAwareModelInterface;
-use Netlogix\JsonApiOrg\Domain\Model\RelatedLinksAwareResourceInterface;
+use TYPO3\Flow\Annotations as Flow;
 use Netlogix\JsonApiOrg\Resource\Information\LinksAwareResourceInformationInterface;
 use Netlogix\JsonApiOrg\Resource\Information\MetaAwareResourceInformationInterface;
 use Netlogix\JsonApiOrg\Schema\Traits\IncludeFieldsTrait;

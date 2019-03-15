@@ -13,8 +13,8 @@ use Doctrine\Common\Collections\Collection;
 use Netlogix\JsonApiOrg\Schema\Relationships;
 use Netlogix\JsonApiOrg\Schema\ResourceInterface;
 use Netlogix\JsonApiOrg\Schema\TopLevel;
-use Neos\Flow\Annotations as Flow;
-use Neos\Flow\Persistence\QueryResultInterface;
+use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Persistence\QueryResultInterface;
 
 /**
  * The RelationshipIterator is basically a factory of TopLevel objects

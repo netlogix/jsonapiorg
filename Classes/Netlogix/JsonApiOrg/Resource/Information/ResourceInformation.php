@@ -10,8 +10,9 @@ namespace Netlogix\JsonApiOrg\Resource\Information;
  */
 
 use Netlogix\JsonApiOrg\Domain\Dto\AbstractResource;
-use Neos\Flow\Annotations as Flow;
-use Neos\Flow\Http\Uri;
+use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Http\Uri;
+use TYPO3\Flow\Object\ObjectManagerInterface;
 
 /**
  * The ResourceInformation is a mapping schema for bringing
@@ -29,13 +30,13 @@ abstract class ResourceInformation
 {
 
     /**
-     * @var \Neos\Flow\Persistence\PersistenceManagerInterface
+     * @var \TYPO3\Flow\Persistence\PersistenceManagerInterface
      * @Flow\Inject
      */
     protected $persistenceManager;
 
     /**
-     * @var \Neos\Flow\ObjectManagement\ObjectManagerInterface
+     * @var ObjectManagerInterface
      * @Flow\Inject
      */
     protected $objectManager;
@@ -185,7 +186,7 @@ abstract class ResourceInformation
     /**
      * Get a UriBuilder for creating URIs for a resource.
      *
-     * @return \Neos\Flow\Mvc\Routing\UriBuilder
+     * @return \TYPO3\Flow\Mvc\Routing\UriBuilder
      */
     public function getUriBuilder()
     {

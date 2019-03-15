@@ -11,8 +11,8 @@ namespace Netlogix\JsonApiOrg\Schema;
 
 use Netlogix\JsonApiOrg\Schema\Traits\ResourceBasedTrait;
 use Netlogix\JsonApiOrg\Schema\Traits\SparseFieldsTrait;
-use Neos\Flow\Annotations as Flow;
-use Neos\Flow\Property\PropertyMapper;
+use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Property\PropertyMapper;
 
 /**
  * @see http://jsonapi.org/format/#document-resource-object-attributes
@@ -63,7 +63,6 @@ class Attributes extends AbstractSchemaElement implements \ArrayAccess
     /**
      * @param mixed $fieldName
      * @return mixed
-     * @throws \Neos\Utility\Exception\PropertyNotAccessibleException
      */
     public function offsetGet($fieldName)
     {

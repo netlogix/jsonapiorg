@@ -9,8 +9,8 @@ namespace Netlogix\JsonApiOrg\Property\TypeConverter\Entity;
  * source code.
  */
 
-use Neos\Flow\Annotations as Flow;
-use Neos\Flow\Property\PropertyMappingConfigurationInterface;
+use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Property\PropertyMappingConfigurationInterface;
 
 /**
  */
@@ -33,13 +33,13 @@ class TypedArrayConverter extends AbstractSchemaResourceBasedEntityConverter
     protected $targetType = 'array';
 
     /**
-     * @var \Neos\Flow\Property\TypeConverter\TypedArrayConverter
+     * @var \TYPO3\Flow\Property\TypeConverter\TypedArrayConverter
      */
     protected $typedArrayConverter;
 
     public function __construct()
     {
-        $this->typedArrayConverter = new \Neos\Flow\Property\TypeConverter\TypedArrayConverter();
+        $this->typedArrayConverter = new \TYPO3\Flow\Property\TypeConverter\TypedArrayConverter();
     }
 
     /**

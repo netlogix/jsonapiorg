@@ -9,9 +9,10 @@ namespace Netlogix\JsonApiOrg\Property\TypeConverter\SchemaResource;
  * source code.
  */
 
-use Neos\Flow\Annotations as Flow;
-use Neos\Flow\Property\PropertyMappingConfigurationInterface;
-use Neos\Flow\Property\TypeConverter\AbstractTypeConverter;
+use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Object\ObjectManagerInterface;
+use TYPO3\Flow\Property\PropertyMappingConfigurationInterface;
+use TYPO3\Flow\Property\TypeConverter\AbstractTypeConverter;
 
 /**
  * The target type of this converter is any kind of Schema\Resource.
@@ -20,13 +21,13 @@ class ResourceConverter extends AbstractTypeConverter
 {
 
     /**
-     * @var \Neos\Flow\Property\PropertyMapper
+     * @var \TYPO3\Flow\Property\PropertyMapper
      * @Flow\Inject
      */
     protected $propertyMapper;
 
     /**
-     * @var \Neos\Flow\ObjectManagement\ObjectManagerInterface
+     * @var ObjectManagerInterface
      * @Flow\Inject
      */
     protected $objectManager;
@@ -64,7 +65,7 @@ class ResourceConverter extends AbstractTypeConverter
      * @param string $targetType
      * @param array $convertedChildProperties
      * @param PropertyMappingConfigurationInterface|null $configuration
-     * @return mixed|\Netlogix\JsonApiOrg\Schema\ResourceInterface|\Neos\Error\Messages\Error
+     * @return mixed|\Netlogix\JsonApiOrg\Schema\ResourceInterface|\TYPO3\Flow\Error\Error
      */
     public function convertFrom(
         $source,
