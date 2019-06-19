@@ -41,4 +41,12 @@ interface ExposableTypeMapInterface
      */
     public function getClassName($typeName);
 
+    /**
+     * @param string $typeName
+     * @param string $propertyName
+     * @return string
+     * @throws FormatNotSupportedException
+     */
+    public function getClassNameForProperty($typeName, $propertyName);
+
 }
