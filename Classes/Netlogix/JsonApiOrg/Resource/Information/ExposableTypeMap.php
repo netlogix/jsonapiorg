@@ -58,6 +58,20 @@ class ExposableTypeMap implements ExposableTypeMapInterface
     protected $typeNameToClassIdentifierMap = array();
 
     /**
+     * Key/Value pairs mapping public properties of type names to class names
+     *
+     * Type names and property names are to be split by "->" (arrow sign, like the PHP property access).
+     *
+     * Example:
+     *
+     *   array(
+     *     'unstructured->options' => 'array<string>',
+     *     'unstructured->firstname' => 'string',
+     *   );
+     */
+    protected $typeAndPropertyNameToClassIdentifierMap = array();
+
+    /**
      * Key/Value pairs mapping an actual PHP class name to a public type name.
      *
      * @var array
@@ -104,6 +118,23 @@ class ExposableTypeMap implements ExposableTypeMapInterface
         } else {
             throw new FormatNotSupportedException('There is no target class name for type "' . $typeName . '"',
                 1451995976);
+        }
+    }
+
+    /**
+     * @param string $typeName
+     * @param string $propertyName
+     * @return string
+     * @throws FormatNotSupportedException
+     */
+    public function getClassNameForProperty($typeName, $propertyName)
+    {
+        $key = $typeName . '->' . $propertyName;
+        if (array_key_exists($key, $this->typeAndPropertyNameToClassIdentifierMap)) {
+            return $this->typeAndPropertyNameToClassIdentifierMap[$key];
+        } else {
+            throw new FormatNotSupportedException('There is no target class name for property "' . $key . '"',
+                1560943398);
         }
     }
 
