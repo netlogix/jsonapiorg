@@ -78,7 +78,6 @@ class ResourceMapper
      */
     public function initializeObject()
     {
-        $this->initializeControllerContext();
         $this->initializeConverters();
     }
 
@@ -170,31 +169,6 @@ class ResourceMapper
     }
 
     /**
-     * The Resource Information most likely needs an UriBuilder, so having a
-     * ControllerContext in place might come in handy.
-     *
-     * @return void
-     */
-    protected function initializeControllerContext()
-    {
-
-        $request = new ActionRequest(Request::createFromEnvironment());
-        $request->setDispatched(true);
-        if (isset($this->flowHttpSettings['baseUri'])) {
-            $request->getHttpRequest()->setBaseUri(new Uri($this->flowHttpSettings['baseUri']));
-        }
-
-        $response = new Response();
-
-        $uriBuilder = new UriBuilder();
-        $uriBuilder->setRequest($request);
-
-        $arguments = new Arguments(array());
-
-        $this->controllerContext = new ControllerContext($request, $response, $arguments, $uriBuilder);
-    }
-
-    /**
      * @return void
      */
     protected function initializeConverters()
@@ -213,6 +187,17 @@ class ResourceMapper
                     return $first->getPriority() < $second->getPriority();
                 }
             });
+    }
+
+    public function withinControllerContext(ControllerContext $controllerContext, callable $scope)
+    {
+        try {
+            $before = $this->controllerContext;
+            $this->controllerContext = $controllerContext;
+            return $scope();
+        } finally {
+            $this->controllerContext = $before;
+        }
     }
 
 }
