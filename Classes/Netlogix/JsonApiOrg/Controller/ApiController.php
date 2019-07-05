@@ -68,6 +68,13 @@ abstract class ApiController extends RestController
      */
     protected $relationshipArgumentName = 'relationshipName';
 
+    public function callActionMethod()
+    {
+        return $this->resourceMapper->withinControllerContext($this->controllerContext, function() {
+            return parent::callActionMethod();
+        });
+    }
+
     /**
      * Determines the action method and assures that the method exists.
      *
