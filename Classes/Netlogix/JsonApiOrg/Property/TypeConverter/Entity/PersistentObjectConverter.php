@@ -1,4 +1,5 @@
 <?php
+
 namespace Netlogix\JsonApiOrg\Property\TypeConverter\Entity;
 
 /*
@@ -9,12 +10,12 @@ namespace Netlogix\JsonApiOrg\Property\TypeConverter\Entity;
  * source code.
  */
 
-use Netlogix\JsonApiOrg\Domain\Model\ComplexAttribute;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Property\Exception\FormatNotSupportedException;
 use Neos\Flow\Property\PropertyMappingConfiguration;
 use Neos\Flow\Property\PropertyMappingConfigurationInterface;
 use Neos\Utility\TypeHandling;
+use Netlogix\JsonApiOrg\Domain\Model\ComplexAttribute;
 
 /**
  */
@@ -51,17 +52,28 @@ class PersistentObjectConverter extends AbstractSchemaResourceBasedEntityConvert
      */
     public function canConvertFrom($source, $targetType)
     {
-        if (!is_array($source) || !array_key_exists('type', $source)) {
+        if (!$this->canConvertSingleObject($source)) {
+            return false;
+        }
+        $className = $this->exposableTypeMap->getClassName($source['type']);
+        return (
+            $className === $targetType
+            || is_subclass_of($className, $targetType)
+            || is_subclass_of($targetType, $className)
+        );
+    }
+
+    public function canConvertSingleObject($source)
+    {
+        if (!is_array($source)) {
+            return false;
+        }
+        if (!array_key_exists('type', $source)) {
             return false;
         }
         try {
             $className = $this->exposableTypeMap->getClassName($source['type']);
         } catch (FormatNotSupportedException $e) {
-            return false;
-        }
-        if ($className !== $targetType && !is_subclass_of($className, $targetType) && !is_subclass_of($targetType,
-                $className)
-        ) {
             return false;
         }
 
@@ -94,13 +106,20 @@ class PersistentObjectConverter extends AbstractSchemaResourceBasedEntityConvert
         PropertyMappingConfigurationInterface $configuration = null
     ) {
         $arguments = [];
+
         if (array_key_exists('attributes', $source)) {
-            array_walk($source['attributes'], function($value, $attributeName) use ($targetType, $configuration) {
+            array_walk($source['attributes'], function ($value, $attributeName) use ($targetType, $configuration) {
                 $configuration->allowProperties($attributeName);
                 if (!is_array($value)) {
                     return;
                 }
-                $targetType = TypeHandling::parseType($this->reflectionService->getPropertyTagValues($targetType, $attributeName, 'var')[0]);
+                $targetType = TypeHandling::parseType(
+                    $this->reflectionService->getPropertyTagValues(
+                        $targetType,
+                        $attributeName,
+                        'var'
+                    )[0]
+                );
                 if (is_a($targetType['type'], ComplexAttribute::class, true)) {
                     $subConfiguration = $configuration->forProperty($attributeName);
                     $subConfiguration->allowAllProperties();
@@ -108,6 +127,7 @@ class PersistentObjectConverter extends AbstractSchemaResourceBasedEntityConvert
             });
             $arguments = array_merge($arguments, $source['attributes']);
         }
+
         if (array_key_exists('relationships', $source)) {
             $arguments = array_merge($arguments, $source['relationships']);
             foreach (array_keys($source['relationships']) as $relationshipName) {
@@ -116,15 +136,28 @@ class PersistentObjectConverter extends AbstractSchemaResourceBasedEntityConvert
                 $configuration->forProperty($relationshipName . '.data')->allowAllProperties();
             }
         }
+
         if (array_key_exists('id', $source)) {
             if ($arguments) {
                 $arguments['__identity'] = $source['id'];
             } else {
-                $arguments = $source['id'];
+                $arguments = [
+                    '__identity' => $source['id']
+                ];
             }
         }
 
-        return $this->propertyMapper->convert($arguments, $this->exposableTypeMap->getClassName($source['type']), $configuration);
+        if (count($arguments) === 1 && array_key_exists('__identity', $arguments)) {
+            $result = $this->getFromScope($source);
+            if ($result) {
+                return $result;
+            }
+        }
+
+        $targetType = $this->exposableTypeMap->getClassName($source['type']);
+        $result = $this->propertyMapper->convert($arguments, $targetType, $configuration);
+        $this->addToScope($source, $result);
+        return $result;
     }
 
 }
