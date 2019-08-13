@@ -140,8 +140,10 @@ abstract class ApiController extends RestController
                     if (!isset($arguments[$this->resourceArgumentName])) {
                         $arguments[$this->resourceArgumentName] = [];
                     }
-                    $arguments[$this->resourceArgumentName] = array_merge_recursive($arguments[$this->resourceArgumentName],
-                        $this->extractRequestBody());
+                    $arguments[$this->resourceArgumentName] = array_merge_recursive(
+                        $arguments[$this->resourceArgumentName],
+                        $this->extractRequestBody()
+                    );
                     $this->request->setArguments($arguments);
                     break;
             }
@@ -160,12 +162,20 @@ abstract class ApiController extends RestController
     {
         $propertyMappingConfiguration = new PropertyMappingConfiguration();
         $propertyMappingConfiguration->setTypeConverter($this->objectManager->get(MediaTypeConverterInterface::class));
-        $propertyMappingConfiguration->setTypeConverterOption(MediaTypeConverterInterface::class,
-            MediaTypeConverterInterface::CONFIGURATION_MEDIA_TYPE, 'application/json');
-        $result = $this->objectManager->get(PropertyMapper::class)->convert($this->request->getHttpRequest()->getContent(),
-            'array', $propertyMappingConfiguration);
-
-        return $result['data'];
+        $propertyMappingConfiguration->setTypeConverterOption(
+            MediaTypeConverterInterface::class,
+            MediaTypeConverterInterface::CONFIGURATION_MEDIA_TYPE,
+            'application/json'
+        );
+        $result = $this
+            ->objectManager
+            ->get(PropertyMapper::class)
+            ->convert(
+                (string)$this->request->getHttpRequest()->getBody(),
+                'array',
+                $propertyMappingConfiguration
+            );
+        return array_intersect_key($result, array_flip(['data', 'included']));
     }
 
     /**
