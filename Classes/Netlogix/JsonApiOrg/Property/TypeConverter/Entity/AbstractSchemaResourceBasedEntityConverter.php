@@ -22,16 +22,12 @@ abstract class AbstractSchemaResourceBasedEntityConverter extends PersistentObje
      * @Flow\Inject
      */
     protected $propertyMapper;
+
     /**
      * @var \Netlogix\JsonApiOrg\Resource\Information\ExposableTypeMapInterface
      * @Flow\Inject
      */
     protected $exposableTypeMap;
-
-    /**
-     * @var array<object>
-     */
-    private static $scope;
 
     /**
      * All properties in the source array except __identity are sub-properties.
@@ -67,7 +63,7 @@ abstract class AbstractSchemaResourceBasedEntityConverter extends PersistentObje
      */
     protected function convertIdentifierProperties($source)
     {
-        $result = $this->getFromScope($source);
+        $result = BatchScope::instance()->findObject($source);
         if ($result) {
             return $result;
         } else {
@@ -76,49 +72,8 @@ abstract class AbstractSchemaResourceBasedEntityConverter extends PersistentObje
                 $identifier,
                 $this->exposableTypeMap->getClassName($source['type'])
             );
-            $this->addToScope($source, $result);
+            BatchScope::instance()->addObject($source, $result);
             return $result;
         }
     }
-
-    protected function asBatchScope(callable $callable, ... $callableArguments)
-    {
-        $executor = function() use (&$callable, &$callableArguments) {
-            return $callable(... $callableArguments);
-        };
-
-        if (is_array(self::$scope)) {
-            return $executor();
-        } else {
-            try {
-                $scope = self::$scope;
-                self::$scope = [];
-                return $executor();
-            } finally {
-                self::$scope = $scope;
-            }
-        }
-    }
-
-    protected function addToScope(array $source, $subject)
-    {
-        if (!is_array(self::$scope)) {
-            return;
-        }
-        self::$scope[self::getScopeIdentifier($source)] = $subject;
-    }
-
-    protected function getFromScope(array $source)
-    {
-        if (!is_array(self::$scope)) {
-            return null;
-        }
-        return self::$scope[self::getScopeIdentifier($source)] ?? null;
-    }
-
-    protected static function getScopeIdentifier(array $source): string
-    {
-        return ($source['type'] ?? '') . PHP_EOL . ($source['id'] ?? '');
-    }
-
 }

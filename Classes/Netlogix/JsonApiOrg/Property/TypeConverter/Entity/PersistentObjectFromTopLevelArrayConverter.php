@@ -66,11 +66,11 @@ class PersistentObjectFromTopLevelArrayConverter extends PersistentObjectConvert
             $this->mapIncluded($included);
 
             $target = $this->propertyMapper->convert($subject, $targetType, $configuration);
-            $this->addToScope($subject, $target);
+            BatchScope::instance()->addObject($subject, $target);
 
             return $target;
         };
-        return $this->asBatchScope($scoped, $source, $targetType, $convertedChildProperties, $configuration);
+        return BatchScope::wrap($scoped, $source, $targetType, $convertedChildProperties, $configuration);
     }
 
     protected function mapIncluded(array $included)
@@ -80,7 +80,7 @@ class PersistentObjectFromTopLevelArrayConverter extends PersistentObjectConvert
             $included = array_filter($included, function (array $candidate) {
                 try {
                     $subject = $this->propertyMapper->convert($candidate, $candidate[self::TARGET_TYPE]);
-                    $this->addToScope($candidate, $subject);
+                    BatchScope::instance()->addObject($candidate, $subject);
                     return false;
                 } catch (PropertyException $e) {
                     return true;

@@ -148,7 +148,7 @@ class PersistentObjectConverter extends AbstractSchemaResourceBasedEntityConvert
         }
 
         if (count($arguments) === 1 && array_key_exists('__identity', $arguments)) {
-            $result = $this->getFromScope($source);
+            $result = BatchScope::instance()->findObject($source);
             if ($result) {
                 return $result;
             }
@@ -156,7 +156,7 @@ class PersistentObjectConverter extends AbstractSchemaResourceBasedEntityConvert
 
         $targetType = $this->exposableTypeMap->getClassName($source['type']);
         $result = $this->propertyMapper->convert($arguments, $targetType, $configuration);
-        $this->addToScope($source, $result);
+        BatchScope::instance()->addObject($source, $result);
         return $result;
     }
 
