@@ -33,6 +33,8 @@ class PersistentObjectFromTopLevelArrayConverter extends PersistentObjectConvert
         if (
             !is_array($source)
             || !array_key_exists('data', $source)
+            || !is_array($source['data'])
+            || !array_key_exists('type', $source['data'])
         ) {
             return false;
         }
@@ -104,7 +106,7 @@ class PersistentObjectFromTopLevelArrayConverter extends PersistentObjectConvert
 
     protected function getSubjectFromSource(array $source): array
     {
-        return $source['data'];
+        return $source['data'] ?? [];
     }
 
     protected function getIncludedFromSource(array $source): array
