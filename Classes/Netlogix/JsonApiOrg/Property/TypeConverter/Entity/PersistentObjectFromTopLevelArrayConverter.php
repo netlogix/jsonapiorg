@@ -77,23 +77,10 @@ class PersistentObjectFromTopLevelArrayConverter extends PersistentObjectConvert
 
     protected function mapIncluded(array $included)
     {
-        while ($included !== []) {
-            $countBefore = count($included);
-            $included = array_filter($included, function (array $candidate) {
-                try {
-                    $subject = $this->propertyMapper->convert($candidate, $candidate[self::TARGET_TYPE]);
-                    BatchScope::instance()->addObject($candidate, $subject);
-                    return false;
-                } catch (PropertyException $e) {
-                    return true;
-                }
-            });
-            $countAfter = count($included);
-            if ($countAfter === $countBefore) {
-                return false;
-            }
-        }
-        return true;
+        \array_walk($included, function($candidate) {
+            $subject = $this->propertyMapper->convert($candidate, $candidate[self::TARGET_TYPE]);
+            BatchScope::instance()->addObject($candidate, $subject);
+        });
     }
 
     protected function getFlatCandidatesArrayFromSource(array $source)
