@@ -129,7 +129,7 @@ class ExposableTypeMap implements ExposableTypeMapInterface
      */
     public function getClassNameForProperty($typeName, $propertyName)
     {
-        $key = $typeName . '->' . $propertyName;
+        $key = strtolower($typeName . '->' . $propertyName);
         if (array_key_exists($key, $this->typeAndPropertyNameToClassIdentifierMap)) {
             return $this->typeAndPropertyNameToClassIdentifierMap[$key];
         } else {
