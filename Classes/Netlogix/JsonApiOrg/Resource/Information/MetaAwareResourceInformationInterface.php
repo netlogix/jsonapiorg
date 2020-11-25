@@ -20,8 +20,9 @@ interface MetaAwareResourceInformationInterface extends ResourceInformationInter
      *
      * @param mixed $payload
      * @param string $relationshipName
-     * @param string $relationshipType
+     * @param null $relationshipType
+     * @param bool $included
      * @return array
      */
-    public function getMetaForRelationship($payload, $relationshipName, $relationshipType = null);
+    public function getMetaForRelationship($payload, $relationshipName, $relationshipType = null, $included = false);
 }
