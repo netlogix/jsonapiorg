@@ -11,10 +11,6 @@ namespace Netlogix\JsonApiOrg\Schema;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Neos\Flow\Annotations as Flow;
-use Neos\Utility\ObjectAccess;
-use Netlogix\JsonApiOrg\Domain\Model\RelatedLinksAwareModelInterface;
-use Netlogix\JsonApiOrg\Domain\Model\RelatedLinksAwareResourceInterface;
 use Netlogix\JsonApiOrg\Resource\Information\LinksAwareResourceInformationInterface;
 use Netlogix\JsonApiOrg\Resource\Information\MetaAwareResourceInformationInterface;
 use Netlogix\JsonApiOrg\Schema\Traits\IncludeFieldsTrait;
@@ -99,7 +95,7 @@ class Relationships extends AbstractSchemaElement implements \IteratorAggregate,
      */
     protected function getResourceSingleRelationshipValue($fieldName)
     {
-        $result = array_merge($this->getBasicResourceRelationshipValue($fieldName, Relationships::RELATIONSHIP_TYPE_SINGLE), array('data' => null));
+        $result = array_merge($this->getBasicResourceRelationshipValue($fieldName, Relationships::RELATIONSHIP_TYPE_SINGLE), ['data' => null]);
 
         $relationship = $this->getResource()->getPayloadProperty($fieldName);
         if (!is_null($relationship)) {
@@ -132,7 +128,7 @@ class Relationships extends AbstractSchemaElement implements \IteratorAggregate,
      */
     protected function getResourceCollectionRelationshipValue($fieldName)
     {
-        $result = array_merge($this->getBasicResourceRelationshipValue($fieldName, Relationships::RELATIONSHIP_TYPE_COLLECTION), array('data' => array()));
+        $result = array_merge($this->getBasicResourceRelationshipValue($fieldName, Relationships::RELATIONSHIP_TYPE_COLLECTION), ['data' => []]);
 
         foreach ($this->getResource()->getPayloadProperty($fieldName) as $relationship) {
             if (!is_null($relationship)) {
@@ -155,7 +151,7 @@ class Relationships extends AbstractSchemaElement implements \IteratorAggregate,
 
         $payload = $this->getPayload();
 
-        $collection = array();
+        $collection = [];
         foreach ($value['data'] as $relationship) {
             $collection[] = $this->resourceMapper->getPayloadForDataIdentifier($relationship);
         }
@@ -207,7 +203,7 @@ class Relationships extends AbstractSchemaElement implements \IteratorAggregate,
         $resourceInformation = $this->getResourceInformation();
 
         if ($resourceInformation instanceof MetaAwareResourceInformationInterface) {
-            foreach ($resourceInformation->getMetaForRelationship($payload, $fieldName, $relationshipType) as $key => $value) {
+            foreach ($resourceInformation->getMetaForRelationship($payload, $fieldName, $relationshipType, $this->isAllowedIncludeField($fieldName)) as $key => $value) {
                 $result[$key] = $value;
             }
         }
