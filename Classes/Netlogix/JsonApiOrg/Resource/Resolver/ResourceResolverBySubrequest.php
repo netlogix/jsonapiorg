@@ -56,7 +56,7 @@ class ResourceResolverBySubrequest extends Browser implements ResourceResolverIn
             throw new \Exception('This request data can not be processed', 1452854998);
         }
 
-        return json_decode($response->getContent(), true);
+        return json_decode($response->getBody()->getContents(), true);
     }
 
     /**

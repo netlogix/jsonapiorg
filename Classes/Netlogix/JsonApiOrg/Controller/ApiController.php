@@ -248,8 +248,8 @@ abstract class ApiController extends RestController
 
         list($status, $result) = $this->mapErrorResult(400, $result);
 
-        $this->response->setStatus($status);
-        $this->response->setHeader('Content-Type', current($this->supportedMediaTypes));
+        $this->response->setStatusCode($status);
+        $this->response->setContentType(current($this->supportedMediaTypes));
 
         return json_encode($result, JSON_PRETTY_PRINT);
     }
