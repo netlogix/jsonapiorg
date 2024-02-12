@@ -12,14 +12,9 @@ namespace Netlogix\JsonApiOrg\Resource\Information;
 use Netlogix\JsonApiOrg\Property\TypeConverter\SchemaResource\ResourceConverter;
 use Netlogix\JsonApiOrg\Schema;
 use Neos\Flow\Annotations as Flow;
-use Neos\Flow\Http\Request;
-use Neos\Flow\Http\Response;
-use Neos\Flow\Http\Uri;
-use Neos\Flow\Mvc\ActionRequest;
-use Neos\Flow\Mvc\Controller\Arguments;
 use Neos\Flow\Mvc\Controller\ControllerContext;
-use Neos\Flow\Mvc\Routing\UriBuilder;
 use Neos\Utility\TypeHandling;
+use Psr\Http\Message\UriInterface;
 
 /**
  * The resource mapper converts any internal payload to
@@ -158,7 +153,7 @@ class ResourceMapper
 
     /**
      * @param mixed $payload
-     * @return \Neos\Flow\Http\Uri
+     * @return UriInterface
      * @see ResourceInformationInterface::getPublicResourceUri()
      */
     public function getPublicResourceUri($payload)

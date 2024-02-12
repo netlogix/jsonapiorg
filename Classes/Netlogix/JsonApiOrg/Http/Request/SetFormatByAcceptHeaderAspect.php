@@ -38,13 +38,15 @@ class SetFormatByAcceptHeaderAspect
          * jsonapi.org format data we care about both, the Accept header as well
          * as the Content-Type header.
          */
-        foreach (array('Accept', 'Http-Accept', 'Content-Type') as $fieldName) {
+        foreach (['Accept', 'Http-Accept', 'Content-Type'] as $fieldName) {
             $headerValue = $actionRequest->getHttpRequest()->getHeader($fieldName);
-            foreach (array('application/json', 'application/vnd.api+json') as $acceptableValue) {
-                if (strpos($headerValue, $acceptableValue) !== false) {
-                    $actionRequest->setFormat('json');
+            foreach (['application/json', 'application/vnd.api+json'] as $acceptableValue) {
+                foreach ($headerValue as $singleValue) {
+                    if (strpos($singleValue, $acceptableValue) !== false) {
+                        $actionRequest->setFormat('json');
 
-                    return;
+                        return;
+                    }
                 }
             }
         }

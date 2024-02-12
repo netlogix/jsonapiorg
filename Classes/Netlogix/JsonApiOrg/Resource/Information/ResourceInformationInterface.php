@@ -9,6 +9,8 @@ namespace Netlogix\JsonApiOrg\Resource\Information;
  * source code.
  */
 
+use Psr\Http\Message\UriInterface;
+
 /**
  * The ResourceInformation is a mapping schema for bringing
  * Resource objects, payload objects and ActionControllers together.
@@ -52,7 +54,7 @@ interface ResourceInformationInterface
      * objects.
      *
      * @param mixed $resource
-     * @return \Neos\Flow\Http\Uri
+     * @return UriInterface
      */
     public function getPublicResourceUri($resource);
 
@@ -63,7 +65,7 @@ interface ResourceInformationInterface
      *
      * @param mixed $payload
      * @param string $relationshipName
-     * @return \Neos\Flow\Http\Uri
+     * @return UriInterface
      */
     public function getPublicRelatedUri($payload, $relationshipName);
 

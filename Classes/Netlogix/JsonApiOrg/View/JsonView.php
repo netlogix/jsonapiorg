@@ -41,7 +41,7 @@ class JsonView extends \Neos\Flow\Mvc\View\JsonView
     public function render()
     {
         $result = parent::render();
-        $this->controllerContext->getResponse()->setHeader('Content-Type', $this->getOption('contentTypeHeader'));
+        $this->controllerContext->getResponse()->setContentType($this->getOption('contentTypeHeader'));
 
         return $result;
     }

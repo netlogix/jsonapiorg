@@ -9,9 +9,9 @@ namespace Netlogix\JsonApiOrg\Resource\Information;
  * source code.
  */
 
+use GuzzleHttp\Psr7\Uri;
 use Netlogix\JsonApiOrg\Domain\Dto\AbstractResource;
 use Neos\Flow\Annotations as Flow;
-use Neos\Flow\Http\Uri;
 
 /**
  * The ResourceInformation is a mapping schema for bringing
@@ -204,7 +204,6 @@ abstract class ResourceInformation
      */
     protected function getPublicUri($resource, $controllerActionName, array $controllerArguments = array())
     {
-
         $uriBuilder = $this->getUriBuilder();
 
         $uri = $uriBuilder->uriFor($controllerActionName,
