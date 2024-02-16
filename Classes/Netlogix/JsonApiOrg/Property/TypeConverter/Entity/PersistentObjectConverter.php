@@ -113,12 +113,12 @@ class PersistentObjectConverter extends AbstractSchemaResourceBasedEntityConvert
                 if (!is_array($value)) {
                     return;
                 }
+
                 $targetType = TypeHandling::parseType(
-                    $this->reflectionService->getPropertyTagValues(
+                    $this->reflectionService->getPropertyType(
                         $targetType,
-                        $attributeName,
-                        'var'
-                    )[0]
+                        $attributeName
+                    )
                 );
                 if (is_a($targetType['type'], ComplexAttribute::class, true)) {
                     $subConfiguration = $configuration->forProperty($attributeName);
