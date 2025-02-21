@@ -123,6 +123,15 @@ class ResourceMapper
     public function getDataIdentifierForPayload($payload)
     {
         $resourceInformation = $this->findResourceInformation($payload);
+
+        if (is_null($resourceInformation)) {
+            $type = is_object($payload) ? get_class($payload) : gettype($payload);
+            throw new ResourceInformationNotFound(
+                'No resource information found for payload of type ' . $type,
+                1740128675
+            );
+        }
+        
         $resource = $resourceInformation->getResource($payload);
 
         return array(
