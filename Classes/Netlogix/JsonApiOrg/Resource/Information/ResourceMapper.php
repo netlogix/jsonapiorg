@@ -8,7 +8,7 @@ namespace Netlogix\JsonApiOrg\Resource\Information;
  * information, please view the LICENSE file which was distributed with this
  * source code.
  */
-
+use Netlogix\JsonApiOrg\Exceptions\ResourceInformationNotFound;
 use Netlogix\JsonApiOrg\Property\TypeConverter\SchemaResource\ResourceConverter;
 use Netlogix\JsonApiOrg\Schema;
 use Neos\Flow\Annotations as Flow;
