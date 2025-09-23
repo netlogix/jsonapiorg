@@ -1,4 +1,5 @@
 <?php
+
 namespace Netlogix\JsonApiOrg\Resource;
 
 /*
@@ -72,7 +73,6 @@ class RelationshipIterator
      */
     public function createTopLevel($resource)
     {
-
         $this->initializeResourceResolver();
         $this->initializeStack($resource);
 
@@ -120,7 +120,6 @@ class RelationshipIterator
      */
     protected function createResult($singleResource)
     {
-
         $result = new TopLevel($singleResource);
 
         foreach ($this->stack->getResults() as $resourceWorkloadPackage) {
@@ -165,7 +164,6 @@ class RelationshipIterator
         $relationshipsToBeApiExposed = $resource->getRelationshipsToBeApiExposed();
 
         foreach ($resource->getRelationships() as $relationshipName => $relationshipContent) {
-
             if (!$resource->getRelationships()->isAllowedIncludeField($relationshipName)) {
                 continue;
             }
@@ -185,7 +183,6 @@ class RelationshipIterator
                         $this->pushRelation($relation, $relationshipNestingPaths);
                     }
                     break;
-
             }
         }
     }
@@ -220,7 +217,10 @@ class RelationshipIterator
      */
     protected function getEffectiveFieldsForResource(ResourceInterface $resource)
     {
-        $type = $this->exposableTypeMap->getType($resource->getType());
+        $type = $this
+            ->exposableTypeMap
+            ->getExposableTypeByClassIdentifier($resource->getType())
+            ->getVersionType();
         if (array_key_exists($type, $this->fields)) {
             return $this->fields[$type];
         }
@@ -312,7 +312,9 @@ class RelationshipIterator
      */
     private function isArray($resource)
     {
-        return is_array($resource) || (is_object($resource) && $resource instanceof Collection) || (is_object($resource) && $resource instanceof QueryResultInterface);
+        return is_array($resource)
+            || (is_object($resource) && $resource instanceof Collection)
+            || (is_object($resource) && $resource instanceof QueryResultInterface);
     }
 
 }

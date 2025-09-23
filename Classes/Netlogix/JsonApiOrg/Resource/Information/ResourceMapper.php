@@ -1,4 +1,5 @@
 <?php
+
 namespace Netlogix\JsonApiOrg\Resource\Information;
 
 /*
@@ -8,6 +9,7 @@ namespace Netlogix\JsonApiOrg\Resource\Information;
  * information, please view the LICENSE file which was distributed with this
  * source code.
  */
+
 use Netlogix\JsonApiOrg\Exceptions\ResourceInformationNotFound;
 use Netlogix\JsonApiOrg\Property\TypeConverter\SchemaResource\ResourceConverter;
 use Netlogix\JsonApiOrg\Schema;
@@ -91,16 +93,19 @@ class ResourceMapper
      * The controllerContext is added to the resource information object to allow
      * it to create proper URIs.
      *
-     * @todo Use runtime cache based on spl_object_hash
      * @param mixed $payload
      * @return \Netlogix\JsonApiOrg\Resource\Information\ResourceInformationInterface
+     * @todo Use runtime cache based on spl_object_hash
      */
     public function findResourceInformation($payload)
     {
-
         if (is_array($payload) && isset($payload['type']) && isset($payload['id'])) {
-            $payload = $this->propertyMapper->convert((string)$payload['id'],
-                $this->exposableTypeMap->getClassName($payload['type']));
+            $payload = $this->propertyMapper->convert(
+                (string)$payload['id'],
+                $this->exposableTypeMap
+                    ->getExposableTypeByVersionedTypeName($payload['type'])
+                    ->className
+            );
         }
 
         /** @var ResourceInformationInterface $resourceInformation */
@@ -131,11 +136,13 @@ class ResourceMapper
                 1740128675
             );
         }
-        
+
         $resource = $resourceInformation->getResource($payload);
 
         return array(
-            'type' => $this->exposableTypeMap->getType($resource->getType()),
+            'type' => $this->exposableTypeMap
+                ->getExposableTypeByClassIdentifier($resource->getType())
+                ->getVersionType(),
             'id' => $resource->getId()
         );
     }
@@ -177,20 +184,25 @@ class ResourceMapper
      */
     protected function initializeConverters()
     {
-
         $this->resourceInformation = array();
 
-        foreach ($this->reflectionService->getAllImplementationClassNamesForInterface(ResourceInformationInterface::class) as $resourceInformationClassName) {
+        foreach (
+            $this->reflectionService->getAllImplementationClassNamesForInterface(
+                ResourceInformationInterface::class
+            ) as $resourceInformationClassName
+        ) {
             $this->resourceInformation[] = $this->objectManager->get($resourceInformationClassName);
         }
-        usort($this->resourceInformation,
+        usort(
+            $this->resourceInformation,
             function (ResourceInformationInterface $first, ResourceInformationInterface $second) {
                 if ($first->getPriority() == $second->getPriority()) {
                     return strcmp(TypeHandling::getTypeForValue($first), TypeHandling::getTypeForValue($second));
                 } else {
                     return $first->getPriority() < $second->getPriority();
                 }
-            });
+            }
+        );
     }
 
     public function withinControllerContext(ControllerContext $controllerContext, callable $scope)

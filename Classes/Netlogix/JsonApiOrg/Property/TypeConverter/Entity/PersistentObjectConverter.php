@@ -55,7 +55,9 @@ class PersistentObjectConverter extends AbstractSchemaResourceBasedEntityConvert
         if (!$this->canConvertSingleObject($source)) {
             return false;
         }
-        $className = $this->exposableTypeMap->getClassName($source['type']);
+        $className = $this->exposableTypeMap
+            ->getExposableTypeByVersionedTypeName($source['type'])
+            ->className;
         return (
             $className === $targetType
             || is_subclass_of($className, $targetType)
@@ -72,7 +74,9 @@ class PersistentObjectConverter extends AbstractSchemaResourceBasedEntityConvert
             return false;
         }
         try {
-            $className = $this->exposableTypeMap->getClassName($source['type']);
+            $className = $this->exposableTypeMap
+                ->getExposableTypeByVersionedTypeName($source['type'])
+                ->className;
         } catch (FormatNotSupportedException $e) {
             return false;
         }
@@ -160,7 +164,9 @@ class PersistentObjectConverter extends AbstractSchemaResourceBasedEntityConvert
             }
         }
 
-        $targetType = $this->exposableTypeMap->getClassName($source['type']);
+        $targetType = $this->exposableTypeMap
+            ->getExposableTypeByVersionedTypeName($source['type'])
+            ->className;
         $result = $this->propertyMapper->convert($arguments, $targetType, $configuration);
         BatchScope::instance()->addObject($source, $result);
         return $result;

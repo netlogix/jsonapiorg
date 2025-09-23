@@ -1,4 +1,5 @@
 <?php
+
 namespace Netlogix\JsonApiOrg\Resource\Information;
 
 /*
@@ -11,6 +12,8 @@ namespace Netlogix\JsonApiOrg\Resource\Information;
 
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Property\Exception\FormatNotSupportedException;
+
+use function vsprintf;
 
 /**
  * This class holds information about:
@@ -26,6 +29,7 @@ use Neos\Flow\Property\Exception\FormatNotSupportedException;
  */
 class ExposableTypeMap implements ExposableTypeMapInterface
 {
+    private static ?string $forcedApiVersion = null;
 
     /**
      * Key/Value pairs mapping an internal type identifier to a public type name.
@@ -38,24 +42,39 @@ class ExposableTypeMap implements ExposableTypeMapInterface
      *     'Neos\ContentRepository\Domain\Model\Node::Neos.Neos:ContentCollection' => 'collection-node',
      *   );
      *
-     * @var array<string>
+     * @var array<string, ExposableType>
      */
-    protected $classIdentifierToTypeNameMap = array();
+    private $classIdentifierToTypeNameMap = [];
 
     /**
-     * Key/Value pairs mapping a public type name to an internal class identifier.
-     *
      * Example:
+     *   [
+     *     'unstructured' => [
+     *       'v1' => new ExposableType(
+     *         className: 'Neos\ContentRepository\Domain\Model\Node',
+     *         typeName: 'unstructured',
+     *         apiVersion: 'v1'
+     *       )
+     *     ],
+     *     'content-node' => [
+     *        'v1' => new ExposableType(
+     *          className: 'Neos\ContentRepository\Domain\Model\Node',
+     *          typeName: 'content-node',
+     *          apiVersion: 'v1'
+     *        )
+     *      ],
+     *     'collection-node' => [
+     *        'v1' => new ExposableType(
+     *          className: 'Neos\ContentRepository\Domain\Model\Node',
+     *          typeName: 'collection-node',
+     *          apiVersion: 'v1'
+     *        )
+     *      ]
+     *   ];
      *
-     *   array(
-     *     'unstructured' => 'Neos\ContentRepository\Domain\Model\Node'
-     *     'content-node' => 'Neos\ContentRepository\Domain\Model\Node'
-     *     'collection-node' => 'Neos\ContentRepository\Domain\Model\Node'
-     *   );
-     *
-     * @var array<string>
+     * @var array<array<string, ExposableType>>
      */
-    protected $typeNameToClassIdentifierMap = array();
+    private $typeNameToClassIdentifierMap = [];
 
     /**
      * Key/Value pairs mapping public properties of type names to class names
@@ -64,77 +83,112 @@ class ExposableTypeMap implements ExposableTypeMapInterface
      *
      * Example:
      *
-     *   array(
-     *     'unstructured->options' => 'array<string>',
-     *     'unstructured->firstname' => 'string',
-     *   );
+     *   [
+     *     'unstructured@v1->options' => 'array<string>',
+     *     'unstructured@v1->firstname' => 'string',
+     *   ];
      */
-    protected $typeAndPropertyNameToClassIdentifierMap = array();
+    private $typeAndPropertyNameToClassIdentifierMap = [];
 
     /**
-     * Key/Value pairs mapping an actual PHP class name to a public type name.
-     *
-     * @var array
+     * @template T of class-string
+     * @var array<T, ExposableType>
      */
-    protected $oneToOneTypeToClassMap = array();
+    private $oneToOneTypeToClassMap = [];
 
-    /**
-     *
-     */
-    public function initializeObject()
+    public function registerExposableType(ExposableType $exposableType): void
     {
-        foreach ($this->oneToOneTypeToClassMap as $className => $typeName) {
-            $this->typeNameToClassIdentifierMap[$typeName] = $className;
-            $this->classIdentifierToTypeNameMap[$className] = $typeName;
+        $this->classIdentifierToTypeNameMap[$exposableType->className] = $exposableType;
+
+        if (array_key_exists($exposableType->getVersionType(), $this->oneToOneTypeToClassMap)) {
+            // FIXME: Conflict resolution isn't quite there, yet, because multiple levels of replacement are not handled.
+            $conflict = $this->oneToOneTypeToClassMap[$exposableType->getVersionType()];
+            if ($conflict->replaces === $exposableType->className) {
+                // Conflict is already the "better" one
+                return;
+            } elseif ($conflict->replaces === $exposableType->className) {
+                // the new one is the "better" one
+            } else {
+                throw new \RuntimeException(
+                    vsprintf(
+                        'There is already an ExposableType registered for type "%s" (%s::class, %s::class)',
+                        [
+                            $exposableType->getVersionType(),
+                            $exposableType->className,
+                            $conflict->className,
+                        ]
+                    ),
+                    1758557659
+                );
+            }
         }
+        $this->oneToOneTypeToClassMap[$exposableType->getVersionType()] = $exposableType;
+        $this->typeNameToClassIdentifierMap[$exposableType->typeName] = $this->typeNameToClassIdentifierMap[$exposableType->typeName] ?? [];
+        $this->typeNameToClassIdentifierMap[$exposableType->typeName][$exposableType->apiVersion] = $exposableType;
     }
 
-    /**
-     * Returns the public type string for a given class name.
-     *
-     * @param string $classIdentifier
-     * @return string
-     * @throws FormatNotSupportedException
-     */
-    public function getType($classIdentifier)
+    public function registerExposableTypeProperty(ExposableType $exposableType, $propertyName, $propertyType)
     {
-        if (array_key_exists($classIdentifier, $this->classIdentifierToTypeNameMap)) {
-            return $this->classIdentifierToTypeNameMap[$classIdentifier];
-        } else {
-            throw new FormatNotSupportedException('There is no target type for class name "' . $classIdentifier . '"',
-                1451995790);
-        }
+        $propertyIdentifier = $exposableType->getVersionType() . '->' . $propertyName;
+        $this->typeAndPropertyNameToClassIdentifierMap[$propertyIdentifier] = $propertyType;
     }
 
-    /**
-     * @param string $typeName
-     * @return string
-     * @throws FormatNotSupportedException
-     */
-    public function getClassName($typeName)
+    public function getExposableTypeByClassIdentifier(string $classIdentifier): ExposableType
     {
-        if (array_key_exists($typeName, $this->typeNameToClassIdentifierMap)) {
-            return $this->typeNameToClassIdentifierMap[$typeName];
-        } else {
-            throw new FormatNotSupportedException('There is no target class name for type "' . $typeName . '"',
-                1451995976);
-        }
+        return $this->classIdentifierToTypeNameMap[$classIdentifier] ?? throw new FormatNotSupportedException(
+            'There is no target type for class name "' . $classIdentifier . '"',
+            1451995790
+        );
     }
 
-    /**
-     * @param string $typeName
-     * @param string $propertyName
-     * @return string
-     * @throws FormatNotSupportedException
-     */
-    public function getClassNameForProperty($typeName, $propertyName)
+    public function getExposableTypeByTypeName(string $typeName, string $apiVersion): ExposableType
     {
+        $apiVersion = self::$forcedApiVersion ?? $apiVersion;
+        return $this->typeNameToClassIdentifierMap[$typeName][$apiVersion] ?? throw new FormatNotSupportedException(
+            'There is no target class name for type "' . $typeName . '" with api version "' . $apiVersion . '"',
+            1451995976
+        );
+    }
+
+    public function getExposableTypeByVersionedTypeName(string $versionedTypeName): ExposableType
+    {
+        if (self::$forcedApiVersion) {
+            $versionedTypeName = explode('@', $versionedTypeName)[0];
+            if (self::$forcedApiVersion !== ExposableTypeMapInterface::NEXT_VERSION) {
+                $versionedTypeName .= '@' . self::$forcedApiVersion;
+            }
+        }
+        return $this->oneToOneTypeToClassMap[$versionedTypeName] ?? throw new FormatNotSupportedException(
+            'There is no target class name for type "' . $versionedTypeName . '"',
+            1758629156
+        );
+    }
+
+    public function getPropertyType(
+        string $typeName,
+        string $apiVersion,
+        string $propertyName
+    ): string {
+        $apiVersion = self::$forcedApiVersion ?? $apiVersion;
         $key = strtolower($typeName . '->' . $propertyName);
         if (array_key_exists($key, $this->typeAndPropertyNameToClassIdentifierMap)) {
             return $this->typeAndPropertyNameToClassIdentifierMap[$key];
         } else {
-            throw new FormatNotSupportedException('There is no target class name for property "' . $key . '"',
-                1560943398);
+            throw new FormatNotSupportedException(
+                'There is no target class name for property "' . $key . '" with api version "' . $apiVersion . '"',
+                1560943398
+            );
+        }
+    }
+
+    final public static function forceApiVersion(?string $apiVersion, callable $do): mixed
+    {
+        $apiVersionBefore = static::$forcedApiVersion;
+        static::$forcedApiVersion = $apiVersion ?? ExposableTypeMapInterface::NEXT_VERSION;
+        try {
+            return $do();
+        } finally {
+            static::$forcedApiVersion = $apiVersionBefore;
         }
     }
 

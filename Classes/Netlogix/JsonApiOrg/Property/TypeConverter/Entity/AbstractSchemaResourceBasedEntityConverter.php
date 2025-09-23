@@ -68,9 +68,12 @@ abstract class AbstractSchemaResourceBasedEntityConverter extends PersistentObje
             return $result;
         } else {
             $identifier = array_key_exists('id', $source) ? $source['id'] : [];
+            $targetType = $this->exposableTypeMap
+                ->getExposableTypeByVersionedTypeName($source['type'])
+                ->className;
             $result = $this->propertyMapper->convert(
                 $identifier,
-                $this->exposableTypeMap->getClassName($source['type'])
+                $targetType
             );
             BatchScope::instance()->addObject($source, $result);
             return $result;

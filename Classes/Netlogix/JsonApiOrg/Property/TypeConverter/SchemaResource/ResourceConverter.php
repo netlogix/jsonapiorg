@@ -1,4 +1,5 @@
 <?php
+
 namespace Netlogix\JsonApiOrg\Property\TypeConverter\SchemaResource;
 
 /*
@@ -12,6 +13,7 @@ namespace Netlogix\JsonApiOrg\Property\TypeConverter\SchemaResource;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Property\PropertyMappingConfigurationInterface;
 use Neos\Flow\Property\TypeConverter\AbstractTypeConverter;
+use Netlogix\JsonApiOrg\Schema\Resource;
 
 /**
  * The target type of this converter is any kind of Schema\Resource.
@@ -57,7 +59,7 @@ class ResourceConverter extends AbstractTypeConverter
      * @var string
      * @api
      */
-    protected $targetType = 'Netlogix\\JsonApiOrg\\Schema\\Resource';
+    protected $targetType = Resource::class;
 
     /**
      * @param mixed $source
@@ -72,7 +74,6 @@ class ResourceConverter extends AbstractTypeConverter
         array $convertedChildProperties = array(),
         PropertyMappingConfigurationInterface $configuration = null
     ) {
-
         if (is_string($source)) {
             $sourceArray = json_decode($source, true);
             $source = is_array($sourceArray) ? $sourceArray : ['id' => $source];
@@ -81,7 +82,9 @@ class ResourceConverter extends AbstractTypeConverter
         if (!array_key_exists('type', $source)) {
             $dummyPayload = $this->objectManager->get($targetType);
             $typeIdentifier = $dummyPayload->getType();
-            $source['type'] = $this->exposableTypeMap->getType($typeIdentifier);
+            $source['type'] = $this->exposableTypeMap
+                ->getExposableTypeByVersionedTypeName($typeIdentifier)
+                ->className;
         }
 
         if (array_key_exists('id', $source)) {
@@ -89,7 +92,13 @@ class ResourceConverter extends AbstractTypeConverter
         } else {
             $arguments = [];
         }
-        $payload = $this->propertyMapper->convert($arguments, $this->exposableTypeMap->getClassName($source['type']));
+
+        $payload = $this->propertyMapper->convert(
+            source: $arguments,
+            targetType: $this->exposableTypeMap
+                ->getExposableTypeByVersionedTypeName($source['type'])
+                ->className
+        );
 
         $resourceInformation = $this->resourceMapper->findResourceInformation($payload);
         $resource = $resourceInformation->getResource($payload);

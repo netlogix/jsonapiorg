@@ -109,7 +109,9 @@ class PersistentObjectFromTopLevelArrayConverter extends PersistentObjectConvert
     protected function addTargetTypeToIncluded(array $included)
     {
         return array_map(function (array $candidate) {
-            $targetType = $this->exposableTypeMap->getClassName($candidate['type']);
+            $targetType = $this->exposableTypeMap
+                ->getExposableTypeByVersionedTypeName($candidate['type'])
+                ->className;
             $candidate[self::TARGET_TYPE] = $targetType;
             return $candidate;
         }, $included);

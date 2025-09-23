@@ -1,4 +1,5 @@
 <?php
+
 namespace Netlogix\JsonApiOrg\Resource;
 
 /*
@@ -58,7 +59,6 @@ class RequestStack
         if (array_key_exists($hash, $this->results)) {
             $this->results[$hash][self::RESULT_NESTING_PATHS][$nestingPath] = $nestingPath;
             return;
-
         }
         $this->results[$hash] = [
             self::RESULT_RESOURCE => $resource,
@@ -76,7 +76,13 @@ class RequestStack
      */
     public function pushIdentifier(array $identifier, $position = self::POSITION_INCLUDE, $nestingPath = '')
     {
-        $resource = $this->propertyMapper->convert((string)$identifier['id'], $this->exposableTypeMap->getClassName($identifier['type']));
+        $resource = $this->propertyMapper
+            ->convert(
+                source: (string)$identifier['id'],
+                targetType: $this->exposableTypeMap
+                    ->getExposableTypeByVersionedTypeName($identifier['type'])
+                    ->className
+            );
         $this->push($resource, $position, $nestingPath);
     }
 
