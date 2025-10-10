@@ -26,19 +26,14 @@ interface ResourceInformationInterface
 
     /**
      * Return the priority of this DtoConverter. DtoConverters with a high priority are chosen before low priority.
-     *
-     * @return int
      */
-    public function getPriority();
+    public function getPriority(): int;
 
     /**
      * Here, the DtoConverter can do some additional runtime checks to see whether
      * it can handle the given source data.
-     *
-     * @param mixed $payload the source data
-     * @return boolean TRUE if this DtoConverter can handle the $source, FALSE otherwise.
      */
-    public function canHandle($payload);
+    public function canHandle(mixed $payload): bool;
 
     /**
      * @param mixed $payload
@@ -52,27 +47,19 @@ interface ResourceInformationInterface
      * So the Converter is used for both, exposing the API of a distinct object
      * type to the public as well as creating internal sub requests for related
      * objects.
-     *
-     * @param mixed $resource
-     * @return UriInterface
      */
-    public function getPublicResourceUri($resource);
+    public function getPublicResourceUri(mixed $resource): UriInterface;
 
     /**
      * For every $resource to be handled, a Converter needs to be able to create
      * a public URI pointing at an action showing information about an individual
      * relationship.
-     *
-     * @param mixed $payload
-     * @param string $relationshipName
-     * @return UriInterface
      */
-    public function getPublicRelatedUri($payload, $relationshipName);
+    public function getPublicRelatedUri(mixed $payload, string $relationshipName): UriInterface;
 
     /**
-     * @param mixed $payload
-     * @return array
+     * @return array<string, mixed>
      */
-    public function getResourceControllerArguments($payload);
+    public function getResourceControllerArguments(mixed $payload): array;
 
 }

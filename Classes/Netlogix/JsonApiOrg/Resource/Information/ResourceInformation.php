@@ -12,6 +12,8 @@ namespace Netlogix\JsonApiOrg\Resource\Information;
 use GuzzleHttp\Psr7\Uri;
 use Netlogix\JsonApiOrg\Domain\Dto\AbstractResource;
 use Neos\Flow\Annotations as Flow;
+use Netlogix\JsonApiOrg\Schema;
+use Psr\Http\Message\UriInterface;
 
 /**
  * The ResourceInformation is a mapping schema for bringing
@@ -102,19 +104,12 @@ abstract class ResourceInformation
      *
      * @return int
      */
-    public function getPriority()
+    public function getPriority(): int
     {
         return $this->priority;
     }
 
-    /**
-     * Here, the DtoConverter can do some additional runtime checks to see whether
-     * it can handle the given source data.
-     *
-     * @param mixed $payload the source data
-     * @return boolean TRUE if this DtoConverter can handle the $source, FALSE otherwise.
-     */
-    public function canHandle($payload)
+    public function canHandle(mixed $payload): bool
     {
         if (is_object($payload) && is_a($payload, $this->payloadClassName)) {
             return true;
@@ -125,69 +120,42 @@ abstract class ResourceInformation
         }
     }
 
-    /**
-     * @param mixed $payload
-     * @return \Netlogix\JsonApiOrg\Schema\Resource
-     */
-    public function getResource($payload)
+    public function getResource(mixed $payload): Schema\Resource
     {
-        return $this->objectManager->get($this->resourceClassName, $payload, $this);
+        $resource = $this->objectManager->get($this->resourceClassName, $payload, $this);
+        assert($resource instanceof Schema\Resource);
+        return $resource;
     }
 
-    /**
-     * For every $resource to be handled, a Converter needs to be able to create
-     * a public URI pointing at the index action.
-     * So the Converter is used for both, exposing the API of a distinct object
-     * type to the public as well as creating internal sub requests for related
-     * objects.
-     *
-     * @param mixed $resource
-     * @return Uri
-     */
-    public function getPublicResourceUri($resource)
+    public function getPublicResourceUri(mixed $resource): Uri
     {
-        return $this->getPublicUri($resource, $this->resourceControllerActionName,
-            $this->getResourceControllerArguments($resource));
+        return $this->getPublicUri(
+            $resource,
+            $this->resourceControllerActionName,
+            $this->getResourceControllerArguments($resource)
+        );
     }
 
-    /**
-     * For every $resource to be handled, a Converter needs to be able to create
-     * a public URI pointing at an action showing information about an individual
-     * relationship.
-     *
-     * @param mixed $resource
-     * @param string $relationshipName
-     *
-     * @return Uri
-     */
-    public function getPublicRelationshipUri($resource, $relationshipName)
+    public function getPublicRelationshipUri(mixed $resource, string $relationshipName): Uri
     {
-        return $this->getPublicUri($resource, $this->resourceControllerActionName,
-            $this->getRelationshipControllerArguments($resource, $relationshipName));
+        return $this->getPublicUri(
+            $resource,
+            $this->resourceControllerActionName,
+            $this->getRelationshipControllerArguments($resource, $relationshipName)
+        );
     }
 
-    /**
-     * For every $resource to be handled, a Converter needs to be able to create
-     * a public URI pointing at an action showing information about an individual
-     * relationship.
-     *
-     * @param mixed $resource
-     * @param string $relationshipName
-     *
-     * @return Uri
-     */
-    public function getPublicRelatedUri($resource, $relationshipName)
+    public function getPublicRelatedUri(mixed $resource, string $relationshipName): Uri
     {
-        return $this->getPublicUri($resource, $this->relatedControllerActionName,
-            $this->getRelationshipControllerArguments($resource, $relationshipName));
+        $x = $this->getPublicUri(
+            $resource,
+            $this->relatedControllerActionName,
+            $this->getRelationshipControllerArguments($resource, $relationshipName)
+        );
+        return $x;
     }
 
-    /**
-     * Get a UriBuilder for creating URIs for a resource.
-     *
-     * @return \Neos\Flow\Mvc\Routing\UriBuilder
-     */
-    public function getUriBuilder()
+    public function getUriBuilder(): \Neos\Flow\Mvc\Routing\UriBuilder
     {
         $uriBuilder = $this->resourceMapper->getControllerContext()->getUriBuilder();
 
@@ -197,27 +165,27 @@ abstract class ResourceInformation
     }
 
     /**
-     * @param mixed $resource
-     * @param string $controllerActionName
-     * @param array $controllerArguments
-     * @return Uri
+     * @param array<mixed, mixed> $controllerArguments
      */
-    protected function getPublicUri($resource, $controllerActionName, array $controllerArguments = array())
+    protected function getPublicUri(mixed $resource, string $controllerActionName, array $controllerArguments = array()): UriInterface
     {
         $uriBuilder = $this->getUriBuilder();
 
-        $uri = $uriBuilder->uriFor($controllerActionName,
-            array_merge($this->getResourceControllerArguments($resource), $controllerArguments), $this->controllerName,
-            $this->packageKey, $this->subPackageKey);
+        $uri = $uriBuilder->uriFor(
+            $controllerActionName,
+            array_merge($this->getResourceControllerArguments($resource), $controllerArguments),
+            $this->controllerName,
+            $this->packageKey,
+            $this->subPackageKey
+        );
 
         return new Uri($uri);
     }
 
     /**
-     * @param mixed $resource
-     * @return array
+     * @return array<string, mixed>
      */
-    public function getResourceControllerArguments($resource)
+    public function getResourceControllerArguments(mixed $resource): array
     {
         return array(
             'resource' => $resource,
@@ -225,15 +193,13 @@ abstract class ResourceInformation
     }
 
     /**
-     * @param mixed $resource
-     * @param string $relationshipName
-     * @return array
+     * @return array<string, mixed>
      */
-    protected function getRelationshipControllerArguments($resource, $relationshipName)
+    protected function getRelationshipControllerArguments(mixed $resource, string $relationshipName): array
     {
         return array(
             'resource' => $resource,
-            'relationshipName' => $relationshipName
+            'relationshipName' => $relationshipName,
         );
     }
 

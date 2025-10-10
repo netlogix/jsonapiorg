@@ -1,4 +1,5 @@
 <?php
+
 namespace Netlogix\JsonApiOrg\Resource\Information;
 
 /*
@@ -24,29 +25,21 @@ use Neos\Flow\Property\Exception\FormatNotSupportedException;
  */
 interface ExposableTypeMapInterface
 {
+    public const string NEXT_VERSION = 'next';
+
+    public function getExposableTypeByClassIdentifier(string $classIdentifier): ExposableType;
+
+    public function getExposableTypeByTypeName(string $typeName, string $apiVersion): ExposableType;
+
+    public function getExposableTypeByVersionedTypeName(string $versionedTypeName): ExposableType;
+
+    public function getPropertyType(string $typeName, string $apiVersion, string $propertyName): string;
 
     /**
-     * Returns the public type string for a given class name.
-     *
-     * @param string $classIdentifier
-     * @return string
-     * @throws FormatNotSupportedException
+     * @template T
+     * @param callable():T $do
+     * @return T
      */
-    public function getType($classIdentifier);
-
-    /**
-     * @param string $typeName
-     * @return string
-     * @throws FormatNotSupportedException
-     */
-    public function getClassName($typeName);
-
-    /**
-     * @param string $typeName
-     * @param string $propertyName
-     * @return string
-     * @throws FormatNotSupportedException
-     */
-    public function getClassNameForProperty($typeName, $propertyName);
+    public static function forceApiVersion(string $apiVersion, callable $do): mixed;
 
 }
