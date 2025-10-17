@@ -9,10 +9,15 @@ namespace Netlogix\JsonApiOrg\View;
  * source code.
  */
 
+use Psr\Http\Message\ResponseInterface;
+
 /**
  * The regular JsonView adds the Content-Type to the result.
  * That's basically the only thing this view does, apart from
  * calling json_encode on all schema elements.
+ *
+ * @deprecated with Flow 9.0 please use the native json_encode instead, without relying on the flow object conversion magic
+ * @see \Neos\Flow\Mvc\View\JsonView
  */
 class JsonView extends \Neos\Flow\Mvc\View\JsonView
 {
@@ -38,12 +43,12 @@ class JsonView extends \Neos\Flow\Mvc\View\JsonView
      * @return string The JSON encoded variables
      * @api
      */
-    public function render()
+    public function render(): ResponseInterface
     {
-        $result = parent::render();
+        $response = parent::render();
         $this->controllerContext->getResponse()->setContentType($this->getOption('contentTypeHeader'));
 
-        return $result;
+        return $response;
     }
 
     /**

@@ -10,8 +10,15 @@ namespace Netlogix\JsonApiOrg\Controller;
  */
 
 use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Http\Exception;
 use Neos\Flow\Mvc\ActionRequest;
+use Neos\Flow\Mvc\ActionResponse;
+use Neos\Flow\Mvc\Controller\Arguments;
 use Neos\Flow\Mvc\Controller\RestController;
+use Neos\Flow\Mvc\Exception\InvalidActionNameException;
+use Neos\Flow\Mvc\Exception\InvalidArgumentNameException;
+use Neos\Flow\Mvc\Exception\InvalidArgumentTypeException;
+use Neos\Flow\Mvc\Exception\InvalidControllerNameException;
 use Neos\Flow\Mvc\View\ViewInterface;
 use Neos\Flow\Property\PropertyMapper;
 use Neos\Flow\Property\PropertyMappingConfiguration;
@@ -20,6 +27,7 @@ use Neos\Utility\Arrays;
 use Neos\Utility\ObjectAccess;
 use Netlogix\JsonApiOrg\Resource\Resolver\ResourceResolverBySubrequest;
 use Netlogix\JsonApiOrg\View\JsonView;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * An action controller dealing with jsonapi.org data structures.
@@ -68,69 +76,73 @@ abstract class ApiController extends RestController
      */
     protected $relationshipArgumentName = 'relationshipName';
 
-    public function callActionMethod()
+    public function callActionMethod(ActionRequest $request, Arguments $arguments, ActionResponse $response): ResponseInterface
     {
-        return $this->resourceMapper->withinControllerContext($this->controllerContext, function() {
-            return parent::callActionMethod();
-        });
+        return $this->resourceMapper->withinControllerContext($this->controllerContext, fn () => parent::callActionMethod($request, $arguments, $response));
     }
 
     /**
      * Determines the action method and assures that the method exists.
      *
+     * @param ActionRequest $request
      * @return string The action method name
      * @throws \Neos\Flow\Mvc\Exception\NoSuchActionException if the action specified in the request object does not exist (and if there's no default action either).
      */
-    protected function resolveActionMethodName()
+    protected function resolveActionMethodName(ActionRequest $request): string
     {
-        $previousRequest = $this->request;
-        $this->request = clone $this->request;
+        $previousRequest = $request;
+        $request = $this->request = clone $request;
         ObjectAccess::setProperty($this->request, self::class, $previousRequest, true);
 
-        if ($this->getOriginalRequest()->getControllerActionName() === 'index' && $this->request->getHttpRequest()->getHeader(ResourceResolverBySubrequest::SUB_REQUEST_HEADER) == 'true') {
-            $this->request->setControllerActionName('showUnwrapped');
+        if ($this->getOriginalRequest()->getControllerActionName() === 'index' && $request->getHttpRequest()->getHeader(ResourceResolverBySubrequest::SUB_REQUEST_HEADER) == 'true') {
+            $request->setControllerActionName('showUnwrapped');
         }
 
-        if ($this->request->getControllerActionName() === 'index') {
+        if ($request->getControllerActionName() === 'index') {
             $actionName = 'index';
-            switch ($this->request->getHttpRequest()->getMethod()) {
+            switch ($request->getHttpRequest()->getMethod()) {
                 case 'HEAD':
                 case 'GET' :
-                    $actionName = ($this->request->hasArgument($this->resourceArgumentName)) ? 'show' : 'list';
+                    $actionName = ($request->hasArgument($this->resourceArgumentName)) ? 'show' : 'list';
                     break;
                 case 'POST' :
                     $actionName = 'create';
                     break;
                 case 'PUT' :
-                    if (!$this->request->hasArgument($this->resourceArgumentName)) {
+                    if (!$request->hasArgument($this->resourceArgumentName)) {
                         $this->throwStatus(400, null, 'No resource specified');
                     }
                     $actionName = 'update';
                     break;
                 case 'DELETE' :
-                    if (!$this->request->hasArgument($this->resourceArgumentName)) {
+                    if (!$request->hasArgument($this->resourceArgumentName)) {
                         $this->throwStatus(400, null, 'No resource specified');
                     }
                     $actionName = 'delete';
                     break;
             }
-            if ($this->request->hasArgument($this->relationshipArgumentName) && $actionName !== 'list') {
+            if ($request->hasArgument($this->relationshipArgumentName) && $actionName !== 'list') {
                 $actionName .= 'Relationship';
             }
-            $this->request->setControllerActionName($actionName);
+            $request->setControllerActionName($actionName);
         }
 
-        return parent::resolveActionMethodName();
+        return parent::resolveActionMethodName($request);
     }
 
     /**
      * The content of the root request is used as resource argument.
      *
+     * @param Arguments $arguments
      * @return void
-     * @throws \Neos\Flow\Mvc\Exception\InvalidArgumentTypeException
+     * @throws Exception
+     * @throws InvalidActionNameException
+     * @throws InvalidArgumentNameException
+     * @throws InvalidArgumentTypeException
+     * @throws InvalidControllerNameException
      * @see initializeArguments()
      */
-    protected function initializeActionMethodArguments()
+    protected function initializeActionMethodArguments(Arguments $arguments)
     {
         if ($this->getOriginalRequest()->getControllerActionName() === 'index') {
             switch ($this->request->getHttpRequest()->getMethod()) {
@@ -148,7 +160,7 @@ abstract class ApiController extends RestController
                     break;
             }
         }
-        parent::initializeActionMethodArguments();
+        parent::initializeActionMethodArguments($arguments);
     }
 
     /**
@@ -158,7 +170,7 @@ abstract class ApiController extends RestController
      * @return mixed
      * @throws \Neos\Flow\Http\Exception
      */
-    protected function extractRequestBody()
+    protected function extractRequestBody(): mixed
     {
         $propertyMappingConfiguration = new PropertyMappingConfiguration();
         $propertyMappingConfiguration->setTypeConverter($this->objectManager->get(MediaTypeConverterInterface::class));
@@ -178,9 +190,6 @@ abstract class ApiController extends RestController
         return array_intersect_key($result, array_flip(['data', 'included']));
     }
 
-    /**
-     *
-     */
     public function initializeAction()
     {
         $this->relationshipIterator->setSupportedMediaTypes($this->supportedMediaTypes);
@@ -254,15 +263,12 @@ abstract class ApiController extends RestController
         return json_encode($result, JSON_PRETTY_PRINT);
     }
 
-    /**
-     * @return ActionRequest
-     */
-    protected function getOriginalRequest()
+    protected function getOriginalRequest(): ActionRequest
     {
         return ObjectAccess::getProperty($this->request, self::class, true);
     }
 
-    protected function mapErrorResult($status, $result)
+    protected function mapErrorResult($status, $result): array
     {
         array_walk($result['errors'], function(&$error) use (&$status) {
             if (ObjectAccess::getPropertyPath($error, 'source.pointer') === '/data' && $error['code'] === 1221560910) {
