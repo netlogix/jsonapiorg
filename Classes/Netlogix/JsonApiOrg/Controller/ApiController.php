@@ -90,9 +90,7 @@ abstract class ApiController extends RestController
      */
     protected function resolveActionMethodName(ActionRequest $request): string
     {
-        $previousRequest = $request;
-        $request = $this->request = clone $request;
-        ObjectAccess::setProperty($this->request, self::class, $previousRequest, true);
+        ObjectAccess::setProperty($request, self::class, clone $request, true);
 
         if ($this->getOriginalRequest()->getControllerActionName() === 'index' && $request->getHttpRequest()->getHeader(ResourceResolverBySubrequest::SUB_REQUEST_HEADER) == 'true') {
             $request->setControllerActionName('showUnwrapped');
