@@ -106,7 +106,7 @@ class ExposableTypeMap implements ExposableTypeMapInterface
             if ($conflict->replaces === $exposableType->className) {
                 // Conflict is already the "better" one
                 return;
-            } elseif ($conflict->replaces === $exposableType->className) {
+            } elseif ($conflict->className === $exposableType->replaces) {
                 // the new one is the "better" one
             } else {
                 throw new \RuntimeException(
