@@ -30,6 +30,12 @@ abstract class AbstractSchemaResourceBasedEntityConverter extends PersistentObje
     protected $exposableTypeMap;
 
     /**
+     * @var \Netlogix\JsonApiOrg\Resource\RequestStackRegistry
+     * @Flow\Inject
+     */
+    protected $requestStackRegistry;
+
+    /**
      * All properties in the source array except __identity are sub-properties.
      *
      * @param mixed $source
@@ -66,17 +72,25 @@ abstract class AbstractSchemaResourceBasedEntityConverter extends PersistentObje
         $result = BatchScope::instance()->findObject($source);
         if ($result) {
             return $result;
-        } else {
-            $identifier = array_key_exists('id', $source) ? $source['id'] : [];
-            $targetType = $this->exposableTypeMap
-                ->getExposableTypeByVersionedTypeName($source['type'])
-                ->className;
-            $result = $this->propertyMapper->convert(
-                $identifier,
-                $targetType
-            );
+        }
+
+        $result = $this->requestStackRegistry
+            ->findResource((string)$source['type'], (string)($source['id'] ?? ''));
+        if ($result) {
             BatchScope::instance()->addObject($source, $result);
             return $result;
         }
+
+        $identifier = array_key_exists('id', $source) ? $source['id'] : [];
+        $targetType = $this->exposableTypeMap
+            ->getExposableTypeByVersionedTypeName($source['type'])
+            ->className;
+        $result = $this->propertyMapper->convert(
+            $identifier,
+            $targetType
+        );
+        BatchScope::instance()->addObject($source, $result);
+
+        return $result;
     }
 }
