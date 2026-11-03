@@ -27,7 +27,7 @@ use function vsprintf;
  *
  * @Flow\Scope("singleton")
  */
-class ExposableTypeMap implements ExposableTypeMapInterface
+class ExposableTypeMap implements ExposableTypeMapInterface, EnumerableExposableTypeMapInterface
 {
     private static ?string $forcedApiVersion = null;
 
@@ -131,6 +131,14 @@ class ExposableTypeMap implements ExposableTypeMapInterface
     {
         $propertyIdentifier = $exposableType->getVersionType() . '->' . $propertyName;
         $this->typeAndPropertyNameToClassIdentifierMap[$propertyIdentifier] = $propertyType;
+    }
+
+    /**
+     * @return list<ExposableType>
+     */
+    public function getExposableTypes(): array
+    {
+        return array_values($this->classIdentifierToTypeNameMap);
     }
 
     public function getExposableTypeByClassIdentifier(string $classIdentifier): ExposableType
