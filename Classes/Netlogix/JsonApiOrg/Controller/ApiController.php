@@ -146,15 +146,15 @@ abstract class ApiController extends RestController
             switch ($this->request->getHttpRequest()->getMethod()) {
                 case 'POST':
                 case 'PUT':
-                    $arguments = $this->request->getArguments();
-                    if (!isset($arguments[$this->resourceArgumentName])) {
-                        $arguments[$this->resourceArgumentName] = [];
+                    $requestArguments = $this->request->getArguments();
+                    if (!isset($requestArguments[$this->resourceArgumentName])) {
+                        $requestArguments[$this->resourceArgumentName] = [];
                     }
-                    $arguments[$this->resourceArgumentName] = array_merge_recursive(
-                        $arguments[$this->resourceArgumentName],
+                    $requestArguments[$this->resourceArgumentName] = array_merge_recursive(
+                        $requestArguments[$this->resourceArgumentName],
                         $this->extractRequestBody()
                     );
-                    $this->request->setArguments($arguments);
+                    $this->request->setArguments($requestArguments);
                     break;
             }
         }
