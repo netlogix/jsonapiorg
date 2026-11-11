@@ -34,6 +34,15 @@ class RequestStack
     protected $results = [];
 
     /**
+     * Maps a "type . PHP_EOL . id" identifier (same key scheme as
+     * BatchScope::getScopeIdentifier()) to the resource currently held by this
+     * stack, enabling O(1) lookups instead of re-materializing the entity.
+     *
+     * @var array<string, object>
+     */
+    protected $resourceByIdentifier = [];
+
+    /**
      * @var \Neos\Flow\Property\PropertyMapper
      * @Flow\Inject
      */
@@ -44,6 +53,23 @@ class RequestStack
      * @Flow\Inject
      */
     protected $exposableTypeMap;
+
+    /**
+     * @var \Netlogix\JsonApiOrg\Resource\Information\ResourceMapper
+     * @Flow\Inject
+     */
+    protected $resourceMapper;
+
+    /**
+     * @var \Netlogix\JsonApiOrg\Resource\RequestStackRegistry
+     * @Flow\Inject
+     */
+    protected $requestStackRegistry;
+
+    public function initializeObject(): void
+    {
+        $this->requestStackRegistry->register($this);
+    }
 
     /**
      * @param object $resource
@@ -64,9 +90,20 @@ class RequestStack
             self::RESULT_RESOURCE => $resource,
             self::RESULT_POSITION => $position,
             self::RESULT_DATA => null,
-            self::RESULT_NESTING_PATHS => [$nestingPath => $nestingPath]
+            self::RESULT_NESTING_PATHS => [$nestingPath => $nestingPath],
         ];
         $this->open[] = $hash;
+        $this->trackResourceByIdentifier($resource);
+    }
+
+    /**
+     * @param string $type
+     * @param string $id
+     * @return object|null
+     */
+    public function findResource(string $type, string $id): ?object
+    {
+        return $this->resourceByIdentifier[$type . PHP_EOL . $id] ?? null;
     }
 
     /**
@@ -76,14 +113,23 @@ class RequestStack
      */
     public function pushIdentifier(array $identifier, $position = self::POSITION_INCLUDE, $nestingPath = '')
     {
-        $resource = $this->propertyMapper
-            ->convert(
-                source: (string)$identifier['id'],
-                targetType: $this->exposableTypeMap
-                    ->getExposableTypeByVersionedTypeName($identifier['type'])
-                    ->className
-            );
-        $this->push($resource, $position, $nestingPath);
+        $resource =
+            $this->requestStackRegistry
+                ->findResource(
+                    type: (string) $identifier['type'],
+                    id: (string) $identifier['id']
+                ) ??
+            $this->propertyMapper
+                ->convert(
+                    source: (string) $identifier['id'],
+                    targetType: $this->exposableTypeMap
+                        ->getExposableTypeByVersionedTypeName($identifier['type'])
+                        ->className
+                ) ??
+            null;
+        if ($resource) {
+            $this->push($resource, $position, $nestingPath);
+        }
     }
 
     /**
@@ -127,4 +173,24 @@ class RequestStack
         return $this->results[$hash][self::RESULT_NESTING_PATHS];
     }
 
+    /**
+     * Registers the resource in the type+id index so it can be found by
+     * findResource() without going through Doctrine again.
+     *
+     * @param object $resource
+     */
+    protected function trackResourceByIdentifier($resource): void
+    {
+        try {
+            $identifier = $this->resourceMapper->getDataIdentifierForPayload($resource);
+        } catch (\Throwable $t) {
+            return;
+        }
+        $type = (string) ($identifier['type'] ?? '');
+        $id = (string) ($identifier['id'] ?? '');
+        if ($type === '' || $id === '') {
+            return;
+        }
+        $this->resourceByIdentifier[$type . PHP_EOL . $id] = $resource;
+    }
 }
