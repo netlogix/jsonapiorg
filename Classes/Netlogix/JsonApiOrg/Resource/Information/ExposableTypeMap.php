@@ -178,7 +178,13 @@ class ExposableTypeMap implements ExposableTypeMapInterface, EnumerableExposable
         string $propertyName
     ): string {
         $apiVersion = self::$forcedApiVersion ?? $apiVersion;
-        $key = strtolower($typeName . '->' . $propertyName);
+        // Same key as registerExposableTypeProperty(), see ExposableType::getVersionType(). Without
+        // the version, a versioned type resolved the property of its unversioned namesake.
+        $versionType = $typeName;
+        if ($apiVersion && $apiVersion !== ExposableTypeMapInterface::NEXT_VERSION) {
+            $versionType .= '@' . $apiVersion;
+        }
+        $key = strtolower($versionType . '->' . $propertyName);
         if (array_key_exists($key, $this->typeAndPropertyNameToClassIdentifierMap)) {
             return $this->typeAndPropertyNameToClassIdentifierMap[$key];
         } else {
